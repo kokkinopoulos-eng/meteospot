@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'chat_screen.dart';
+import 'local_ai_screen.dart';
+import 'settings_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/weather_service.dart';
 import '../services/location_service.dart';
@@ -99,10 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _loadWeather,
-          ),
+          IconButton(icon: const Icon(Icons.psychology_outlined, color: Colors.green), onPressed: () { if (_weatherData != null) { Navigator.push(context, MaterialPageRoute(builder: (context) => LocalAIScreen(weatherData: _weatherData!))); } },), IconButton(icon: const Icon(Icons.chat_bubble_outline, color: Colors.white), onPressed: () { if (_weatherData != null) { Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(weatherData: _weatherData!))); } },), IconButton(icon: const Icon(Icons.settings_outlined, color: Colors.white), onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())); },), IconButton(icon: const Icon(Icons.refresh, color: Colors.white), onPressed: _loadWeather,),
         ],
       ),
       body: _buildBody(),
@@ -432,3 +432,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
