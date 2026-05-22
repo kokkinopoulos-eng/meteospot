@@ -1,0 +1,44 @@
+name: meteospot
+description: Hyperlocal AI Weather App
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.12.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Location & GPS
+  geolocator: ^13.0.0
+  geocoding: ^3.0.0
+  
+  # Weather APIs
+  http: ^1.2.0
+  
+  # Sensors (καλύπτει όλα - βαρόμετρο, accelerometer, gyroscope, κλπ)
+  sensors_plus: ^6.0.0
+  
+  # Storage
+  shared_preferences: ^2.3.0
+  flutter_secure_storage: ^9.2.0
+  
+  # UI
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.0
+  lottie: ^3.1.0
+
+  # Permissions
+  permission_handler: ^11.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/animations/
+    - assets/icons/
