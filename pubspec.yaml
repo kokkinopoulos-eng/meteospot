@@ -12,7 +12,6 @@ dependencies:
   
   # Location & GPS
   geolocator: ^13.0.0
-  geocoding: ^3.0.0
   
   # Weather APIs
   http: ^1.2.0
