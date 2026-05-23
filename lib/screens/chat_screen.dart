@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../services/ai_service.dart';
 import '../models/weather_data.dart';
 
 class ChatScreen extends StatefulWidget {
   final WeatherData weatherData;
-
   const ChatScreen({super.key, required this.weatherData});
 
   @override
@@ -22,13 +21,12 @@ class _ChatScreenState extends State<ChatScreen> {
     'Να βγω για περπάτημα;',
     'Θα βρέξει σήμερα;',
     'Πόσο κρύο είναι;',
-    'Είναι καλός καιρός για ψάρεμα;',
-    'Πότε θα βελτιωθεί ο καιρός;',
+    'Καλός για ψάρεμα;',
+    'Πότε θα βελτιωθεί;',
   ];
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
-
     setState(() {
       _messages.add({'role': 'user', 'content': text});
       _isLoading = true;
@@ -54,7 +52,6 @@ class _ChatScreenState extends State<ChatScreen> {
       );
 
       final response = await _aiService.ask(context, text);
-
       setState(() {
         _messages.add({'role': 'assistant', 'content': response});
         _isLoading = false;
@@ -62,15 +59,9 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       setState(() {
         if (e.toString().contains('no_key')) {
-          _messages.add({
-            'role': 'assistant',
-            'content': '⚙️ Δεν έχεις ρυθμίσει API key.\n\nΠήγαινε στις Ρυθμίσεις (⚙️) και πρόσθεσε το Claude ή ChatGPT API key σου.',
-          });
+          _messages.add({'role': 'assistant', 'content': '⚙️ Δεν έχεις ρυθμίσει API key.\n\nΠήγαινε στις Ρυθμίσεις (⚙️) και πρόσθεσε Claude ή ChatGPT API key.'});
         } else {
-          _messages.add({
-            'role': 'assistant',
-            'content': '❌ Σφάλμα: ${e.toString().replaceAll('Exception: ', '')}',
-          });
+          _messages.add({'role': 'assistant', 'content': '❌ Σφάλμα: ${e.toString().replaceAll("Exception: ", "")}'});
         }
         _isLoading = false;
       });
@@ -97,20 +88,20 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          '🤖 Ρώτα τον AI Μετεωρολόγο',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-        ),
+        title: const Text('🤖 Ρώτα τον AI Μετεωρολόγο',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _messages.isEmpty ? _buildWelcome() : _buildMessages(),
-          ),
-          _buildQuickQuestions(),
-          _buildInput(),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: _messages.isEmpty ? _buildWelcome() : _buildMessages(),
+            ),
+            _buildQuickQuestions(),
+            _buildInput(),
+          ],
+        ),
       ),
     );
   }
@@ -125,16 +116,11 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(w.weatherEmoji, style: const TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
-            Text(
-              '${w.temperature.toStringAsFixed(1)}°C - ${w.description}',
-              style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            Text('${w.temperature.toStringAsFixed(1)}°C - ${w.description}',
+                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            const Text(
-              'Ρώτα με οτιδήποτε για τον καιρό\nστην τοποθεσία σου!',
-              style: TextStyle(color: Colors.white54, fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
+            const Text('Ρώτα με οτιδήποτε για τον καιρό\nστην τοποθεσία σου!',
+                style: TextStyle(color: Colors.white54, fontSize: 14), textAlign: TextAlign.center),
           ],
         ),
       ),
@@ -147,9 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: const EdgeInsets.all(16),
       itemCount: _messages.length + (_isLoading ? 1 : 0),
       itemBuilder: (context, index) {
-        if (index == _messages.length) {
-          return _buildTypingIndicator();
-        }
+        if (index == _messages.length) return _buildTypingIndicator();
         final message = _messages[index];
         final isUser = message['role'] == 'user';
         return _buildMessage(message['content']!, isUser);
@@ -165,11 +149,8 @@ class _ChatScreenState extends State<ChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[
-            const CircleAvatar(
-              backgroundColor: Colors.blue,
-              radius: 16,
-              child: Text('🤖', style: TextStyle(fontSize: 14)),
-            ),
+            const CircleAvatar(backgroundColor: Colors.blue, radius: 16,
+                child: Text('🤖', style: TextStyle(fontSize: 14))),
             const SizedBox(width: 8),
           ],
           Flexible(
@@ -184,10 +165,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   bottomRight: Radius.circular(isUser ? 4 : 16),
                 ),
               ),
-              child: Text(
-                content,
-                style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
-              ),
+              child: Text(content,
+                  style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5)),
             ),
           ),
           if (isUser) const SizedBox(width: 8),
@@ -201,28 +180,18 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          const CircleAvatar(
-            backgroundColor: Colors.blue,
-            radius: 16,
-            child: Text('🤖', style: TextStyle(fontSize: 14)),
-          ),
+          const CircleAvatar(backgroundColor: Colors.blue, radius: 16,
+              child: Text('🤖', style: TextStyle(fontSize: 14))),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1A2744),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Row(
-              children: [
-                SizedBox(
-                  width: 40,
-                  child: LinearProgressIndicator(color: Colors.blue),
-                ),
-                SizedBox(width: 8),
-                Text('Σκέφτομαι...', style: TextStyle(color: Colors.white54, fontSize: 13)),
-              ],
-            ),
+            decoration: BoxDecoration(color: const Color(0xFF1A2744),
+                borderRadius: BorderRadius.circular(16)),
+            child: const Row(children: [
+              SizedBox(width: 40, child: LinearProgressIndicator(color: Colors.blue)),
+              SizedBox(width: 8),
+              Text('Σκέφτομαι...', style: TextStyle(color: Colors.white54, fontSize: 13)),
+            ]),
           ),
         ],
       ),
@@ -231,10 +200,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildQuickQuestions() {
     return SizedBox(
-      height: 40,
+      height: 44,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
         itemCount: _quickQuestions.length,
         itemBuilder: (context, index) {
           return Padding(
@@ -248,10 +217,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
                 ),
-                child: Text(
-                  _quickQuestions[index],
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
+                child: Text(_quickQuestions[index],
+                    style: const TextStyle(color: Colors.white70, fontSize: 12)),
               ),
             ),
           );
@@ -289,10 +256,7 @@ class _ChatScreenState extends State<ChatScreen> {
             onTap: () => _sendMessage(_controller.text),
             child: Container(
               padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-                shape: BoxShape.circle,
-              ),
+              decoration: const BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
               child: const Icon(Icons.send, color: Colors.white, size: 20),
             ),
           ),

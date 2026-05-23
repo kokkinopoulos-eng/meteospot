@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'chat_screen.dart';
 import 'local_ai_screen.dart';
 import 'settings_screen.dart';
@@ -7,7 +7,6 @@ import '../services/weather_service.dart';
 import '../services/location_service.dart';
 import '../services/sensor_service.dart';
 import '../models/weather_data.dart';
-import '../models/sensor_data.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final SensorService _sensorService = SensorService();
 
   WeatherData? _weatherData;
-  SensorData? _sensorData;
+  
   String? _aiInsight;
   bool _isLoading = false;
   String? _error;
@@ -47,19 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      // Παίρνουμε τη θέση
       final Position position = await _locationService.getCurrentLocation();
-
-      // Παίρνουμε τον καιρό
       final weather = await _weatherService.getWeather(
         position.latitude,
         position.longitude,
       );
-
-      // Παίρνουμε sensor data
-      final sensors = await _sensorService.getSensorData();
-
-      // Rule-based AI ανάλυση
+      
       final insight = _sensorService.analyzeWeatherRules(
         apiPressure: weather.pressure,
         humidity: weather.humidity,
@@ -69,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       setState(() {
         _weatherData = weather;
-        _sensorData = sensors;
+        
         _aiInsight = insight;
         _isLoading = false;
       });
@@ -92,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text('📍 ', style: TextStyle(fontSize: 20)),
             Text(
-              'MeteoSpot',
+              'MetAIoSpot',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -102,7 +94,35 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.psychology_outlined, color: Colors.green), onPressed: () { if (_weatherData != null) { Navigator.push(context, MaterialPageRoute(builder: (context) => LocalAIScreen(weatherData: _weatherData!))); } },), IconButton(icon: const Icon(Icons.chat_bubble_outline, color: Colors.white), onPressed: () { if (_weatherData != null) { Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(weatherData: _weatherData!))); } },), IconButton(icon: const Icon(Icons.settings_outlined, color: Colors.white), onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())); },), IconButton(icon: const Icon(Icons.refresh, color: Colors.white), onPressed: _loadWeather,),
+          IconButton(
+            icon: const Icon(Icons.psychology_outlined, color: Colors.green),
+            onPressed: () {
+              if (_weatherData != null) {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => LocalAIScreen(weatherData: _weatherData!)));
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
+            onPressed: () {
+              if (_weatherData != null) {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => ChatScreen(weatherData: _weatherData!)));
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: Colors.white),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const SettingsScreen()));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _loadWeather,
+          ),
         ],
       ),
       body: _buildBody(),
@@ -117,10 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             CircularProgressIndicator(color: Colors.blue),
             SizedBox(height: 16),
-            Text(
-              'Εντοπισμός τοποθεσίας...',
-              style: TextStyle(color: Colors.white70),
-            ),
+            Text('Εντοπισμός τοποθεσίας...',
+                style: TextStyle(color: Colors.white70)),
           ],
         ),
       );
@@ -135,11 +153,8 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               const Icon(Icons.error_outline, color: Colors.red, size: 64),
               const SizedBox(height: 16),
-              Text(
-                _error!,
-                style: const TextStyle(color: Colors.white70),
-                textAlign: TextAlign.center,
-              ),
+              Text(_error!, style: const TextStyle(color: Colors.white70),
+                  textAlign: TextAlign.center),
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: _loadWeather,
@@ -190,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.3),
+            color: Colors.blue.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -207,48 +222,29 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     '${w.latitude.toStringAsFixed(4)}, ${w.longitude.toStringAsFixed(4)}',
-                    style: const TextStyle(
-                      color: Colors.white60,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white60, fontSize: 12),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${w.elevation.toInt()}m υψόμετρο',
-                    style: const TextStyle(
-                      color: Colors.white60,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white60, fontSize: 12),
                   ),
                 ],
               ),
-              Text(
-                w.weatherEmoji,
-                style: const TextStyle(fontSize: 64),
-              ),
+              Text(w.weatherEmoji, style: const TextStyle(fontSize: 64)),
             ],
           ),
           const SizedBox(height: 16),
           Text(
             '${w.temperature.toStringAsFixed(1)}°C',
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 72,
-              fontWeight: FontWeight.w200,
-            ),
+                color: Colors.white, fontSize: 72, fontWeight: FontWeight.w200),
           ),
-          Text(
-            w.description,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 20,
-            ),
-          ),
+          Text(w.description,
+              style: const TextStyle(color: Colors.white70, fontSize: 20)),
           const SizedBox(height: 8),
-          Text(
-            'Αίσθηση: ${w.feelsLike.toStringAsFixed(1)}°C',
-            style: const TextStyle(color: Colors.white60),
-          ),
+          Text('Αίσθηση: ${w.feelsLike.toStringAsFixed(1)}°C',
+              style: const TextStyle(color: Colors.white60)),
         ],
       ),
     );
@@ -265,39 +261,29 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Λεπτομέρειες',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          const Text('Λεπτομέρειες',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildDetailItem('💧', 'Υγρασία', '${w.humidity.toInt()}%'),
-              _buildDetailItem('🌬️', 'Άνεμος',
-                  '${w.windSpeed.toStringAsFixed(1)} km/h ${w.windDirectionText}'),
-            ],
-          ),
+          Row(children: [
+            _buildDetailItem('💧', 'Υγρασία', '${w.humidity.toInt()}%'),
+            _buildDetailItem('🌬️', 'Άνεμος',
+                '${w.windSpeed.toStringAsFixed(1)} km/h ${w.windDirectionText}'),
+          ]),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              _buildDetailItem(
-                  '🌡️', 'Πίεση', '${w.pressure.toStringAsFixed(0)} hPa'),
-              _buildDetailItem('☀️', 'UV Index', w.uvIndex.toStringAsFixed(1)),
-            ],
-          ),
+          Row(children: [
+            _buildDetailItem('🌡️', 'Πίεση', '${w.pressure.toStringAsFixed(0)} hPa'),
+            _buildDetailItem('☀️', 'UV Index', w.uvIndex.toStringAsFixed(1)),
+          ]),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              _buildDetailItem('👁️', 'Ορατότητα',
-                  '${(w.visibility / 1000).toStringAsFixed(1)} km'),
-              _buildDetailItem('🕐', 'Ενημέρωση',
-                  '${w.timestamp.hour}:${w.timestamp.minute.toString().padLeft(2, '0')}'),
-            ],
-          ),
+          Row(children: [
+            _buildDetailItem('👁️', 'Ορατότητα',
+                '${(w.visibility / 1000).toStringAsFixed(1)} km'),
+            _buildDetailItem('🕐', 'Ενημέρωση',
+                '${w.timestamp.hour}:${w.timestamp.minute.toString().padLeft(2, '0')}'),
+          ]),
         ],
       ),
     );
@@ -312,18 +298,13 @@ class _HomeScreenState extends State<HomeScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              Text(label,
+                  style: const TextStyle(color: Colors.white54, fontSize: 12)),
+              Text(value,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500)),
             ],
           ),
         ],
@@ -338,33 +319,25 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF1A2744),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Text('🤖', style: TextStyle(fontSize: 20)),
-              SizedBox(width: 8),
-              Text(
-                'AI Ανάλυση',
+          const Row(children: [
+            Text('🤖', style: TextStyle(fontSize: 20)),
+            SizedBox(width: 8),
+            Text('AI Ανάλυση',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
+          ]),
           const SizedBox(height: 12),
           Text(
             _aiInsight ?? 'Αναλύω δεδομένα...',
             style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-              height: 1.5,
-            ),
+                color: Colors.white70, fontSize: 14, height: 1.5),
           ),
           const SizedBox(height: 12),
           const Text(
@@ -377,6 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSensorsCard() {
+    final w = _weatherData!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -386,33 +360,23 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Text('📡', style: TextStyle(fontSize: 20)),
-              SizedBox(width: 8),
-              Text(
-                'Σένσορες Κινητού',
+          const Row(children: [
+            Text('📊', style: TextStyle(fontSize: 20)),
+            SizedBox(width: 8),
+            Text('Πληροφορίες Σημείου',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
+          ]),
           const SizedBox(height: 12),
-          if (_sensorData?.accelerometerX != null) ...[
-            _buildSensorRow('Επιταχυνσιόμετρο X',
-                '${_sensorData!.accelerometerX!.toStringAsFixed(2)} m/s²'),
-            _buildSensorRow('Επιταχυνσιόμετρο Y',
-                '${_sensorData!.accelerometerY!.toStringAsFixed(2)} m/s²'),
-            _buildSensorRow('Επιταχυνσιόμετρο Z',
-                '${_sensorData!.accelerometerZ!.toStringAsFixed(2)} m/s²'),
-          ] else
-            const Text(
-              'Οι σένσορες θα ενεργοποιηθούν στο κινητό',
-              style: TextStyle(color: Colors.white54),
-            ),
+          _buildSensorRow('📍 Υψόμετρο', '${w.elevation.toInt()}m'),
+          _buildSensorRow('🌡️ Αίσθηση θερμοκρασίας', '${w.feelsLike.toStringAsFixed(1)}°C'),
+          _buildSensorRow('💧 Υγρασία', '${w.humidity.toInt()}%'),
+          _buildSensorRow('🌬️ Άνεμος', '${w.windSpeed.toStringAsFixed(1)} km/h ${w.windDirectionText}'),
+          _buildSensorRow('☀️ UV Index', w.uvIndex.toStringAsFixed(1)),
+          _buildSensorRow('👁️ Ορατότητα', '${(w.visibility / 1000).toStringAsFixed(1)} km'),
+          _buildSensorRow('🌡️ Πίεση', '${w.pressure.toStringAsFixed(0)} hPa'),
         ],
       ),
     );
@@ -424,7 +388,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+          Text(label,
+              style: const TextStyle(color: Colors.white54, fontSize: 13)),
           Text(value,
               style: const TextStyle(color: Colors.white, fontSize: 13)),
         ],
@@ -432,4 +397,5 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
 

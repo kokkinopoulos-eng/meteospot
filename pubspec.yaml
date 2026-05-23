@@ -30,9 +30,8 @@ dependencies:
 
   # Permissions
   permission_handler: ^11.3.0
-  flutter_gemma: 0.12.6
   path_provider: ^2.1.5
-
+  flutter_llama: ^1.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

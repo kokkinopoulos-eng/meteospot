@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -34,6 +34,39 @@ class AIService {
     await _storage.delete(key: keyName);
   }
 
+  // Keyword filter - ΠΡΙΝ το API call
+  bool isWeatherRelated(String question) {
+    final keywords = [
+      'καιρός', 'βροχή', 'ήλιος', 'χιόνι', 'άνεμος', 'αέρας',
+      'θερμοκρασία', 'υγρασία', 'πίεση', 'σύννεφα', 'ομίχλη',
+      'καταιγίδα', 'ψάρεμα', 'περπάτημα', 'εκδρομή', 'μπάνιο',
+      'weather', 'rain', 'snow', 'wind', 'temperature', 'cloud',
+      'να βγω', 'να πάω', 'να οδηγήσω', 'ασφαλές', 'κρύο', 'ζέστη',
+      'uv', 'ορατότητα', 'υψόμετρο', 'πρόβλεψη', 'forecast',
+      'sunny', 'cloudy', 'storm', 'thunder', 'lightning', 'fog',
+      'παγετός', 'πάγος', 'χαλάζι', 'μπόρα', 'ομπρέλα', 'αντιηλιακό',
+      'σήμερα', 'αύριο', 'απόγευμα', 'πρωί', 'βράδυ', 'εβδομάδα',
+      'today', 'tomorrow', 'morning', 'evening', 'weekend'
+    ];
+    return keywords.any((k) => question.toLowerCase().contains(k));
+  }
+
+  static const String _systemPrompt = '''Είσαι έμπειρος μετεωρολόγος που αναλύει τοπικές καιρικές συνθήκες.
+Απαντάς ΜΟΝΟ σε ερωτήσεις που σχετίζονται με:
+- Καιρό, κλίμα, ατμοσφαιρικά φαινόμενα
+- Δραστηριότητες που επηρεάζονται από τον καιρό (ψάρεμα, περπάτημα, οδήγηση κλπ)
+
+Αν η ερώτηση είναι ΑΣΧΕΤΗ με καιρό, απάντα ΜΟΝΟ:
+"🌤️ Μπορώ να απαντήσω μόνο σε ερωτήσεις σχετικές με τον καιρό!"
+
+ΠΟΤΕ μην απαντάς σε:
+- Πολιτικά, θρησκευτικά, προσωπικά θέματα
+- Ιατρικές συμβουλές
+- Οτιδήποτε άσχετο με μετεωρολογία
+
+Δίνεις σύντομες, χρήσιμες απαντήσεις στα Ελληνικά.
+Πάντα προσθέτεις: "⚠️ Για δραστηριότητες με κίνδυνο, συμβουλευτείτε ΕΜΥ."''';
+
   Future<String> askClaude(String apiKey, String weatherContext, String question) async {
     final response = await http.post(
       Uri.parse('https://api.anthropic.com/v1/messages'),
@@ -45,11 +78,7 @@ class AIService {
       body: jsonEncode({
         'model': 'claude-haiku-4-5',
         'max_tokens': 500,
-        'system': '''Είσαι ένας έμπειρος μετεωρολόγος που αναλύει τοπικές καιρικές συνθήκες. 
-Δίνεις σύντομες, χρήσιμες απαντήσεις στα Ελληνικά.
-Πάντα προσθέτεις: "⚠️ Για δραστηριότητες με κίνδυνο, συμβουλευτείτε ΕΜΥ."
-Τα δεδομένα καιρού που έχεις:
-$weatherContext''',
+        'system': '$_systemPrompt\n\nΤα δεδομένα καιρού:\n$weatherContext',
         'messages': [
           {'role': 'user', 'content': question}
         ],
@@ -81,11 +110,7 @@ $weatherContext''',
         'messages': [
           {
             'role': 'system',
-            'content': '''Είσαι ένας έμπειρος μετεωρολόγος που αναλύει τοπικές καιρικές συνθήκες.
-Δίνεις σύντομες, χρήσιμες απαντήσεις στα Ελληνικά.
-Πάντα προσθέτεις: "⚠️ Για δραστηριότητες με κίνδυνο, συμβουλευτείτε ΕΜΥ."
-Τα δεδομένα καιρού που έχεις:
-$weatherContext'''
+            'content': '$_systemPrompt\n\nΤα δεδομένα καιρού:\n$weatherContext'
           },
           {'role': 'user', 'content': question}
         ],
@@ -105,8 +130,12 @@ $weatherContext'''
   }
 
   Future<String> ask(String weatherContext, String question) async {
+    // Layer 1: Client-side keyword filter
+    if (!isWeatherRelated(question)) {
+      return '🌤️ Μπορώ να απαντήσω μόνο σε ερωτήσεις σχετικές με τον καιρό!';
+    }
+
     final provider = await getCurrentProvider();
-    
     if (provider == AIProvider.none) {
       throw Exception('no_key');
     }

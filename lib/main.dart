@@ -1,17 +1,18 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 
-void main() {
-  runApp(const MeteoSpotApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MetAIoSpotApp());
 }
 
-class MeteoSpotApp extends StatelessWidget {
-  const MeteoSpotApp({super.key});
+class MetAIoSpotApp extends StatelessWidget {
+  const MetAIoSpotApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MeteoSpot',
+      title: 'MetAIoSpot',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -25,3 +26,4 @@ class MeteoSpotApp extends StatelessWidget {
     );
   }
 }
+
