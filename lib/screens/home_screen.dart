@@ -1,6 +1,5 @@
 ﻿import 'package:flutter/material.dart';
 import 'chat_screen.dart';
-import 'local_ai_screen.dart';
 import 'settings_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/weather_service.dart';
@@ -52,12 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         position.longitude,
       );
       
-      final insight = _sensorService.analyzeWeatherRules(
-        apiPressure: weather.pressure,
-        humidity: weather.humidity,
-        temperature: weather.temperature,
-        weatherCode: weather.weatherCode,
-      );
+      final insight = _sensorService.analyzeWeatherRules(apiPressure: weather.pressure, humidity: weather.humidity, temperature: weather.temperature, weatherCode: weather.weatherCode, windSpeed: weather.windSpeed, uvIndex: weather.uvIndex, visibility: weather.visibility, feelsLike: weather.feelsLike);
 
       setState(() {
         _weatherData = weather;
@@ -94,16 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.psychology_outlined, color: Colors.green),
-            onPressed: () {
-              if (_weatherData != null) {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => LocalAIScreen(weatherData: _weatherData!)));
-              }
-            },
-          ),
-          IconButton(
+IconButton(
             icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
             onPressed: () {
               if (_weatherData != null) {
@@ -397,5 +382,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+
+
 
 
