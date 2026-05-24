@@ -1,9 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'chat_screen.dart';
 import 'settings_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/weather_service.dart';
 import '../services/location_service.dart';
+import 'package:geocoding/geocoding.dart';
 import '../services/sensor_service.dart';
 import '../models/weather_data.dart';
 
@@ -46,10 +47,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final Position position = await _locationService.getCurrentLocation();
-      final weather = await _weatherService.getWeather(
-        position.latitude,
-        position.longitude,
-      );
+      final weather = await _weatherService.getWeather(position.latitude, position.longitude);
+      try {
+        final placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+        if (placemarks.isNotEmpty) {
+          final p = placemarks.first;
+          final parts = [p.locality, p.administrativeArea].where((s) => s != null && s.isNotEmpty).toList();
+          weather.locationName = parts.join(', ');
+        }
+      } catch (_) {}
       
       final insight = _sensorService.analyzeWeatherRules(apiPressure: weather.pressure, humidity: weather.humidity, temperature: weather.temperature, weatherCode: weather.weatherCode, windSpeed: weather.windSpeed, uvIndex: weather.uvIndex, visibility: weather.visibility, feelsLike: weather.feelsLike);
 
@@ -206,12 +212,17 @@ IconButton(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${w.latitude.toStringAsFixed(4)}, ${w.longitude.toStringAsFixed(4)}',
+                    w.locationName.isNotEmpty ? w.locationName : '${w.latitude.toStringAsFixed(4)}, ${w.longitude.toStringAsFixed(4)}',
                     style: const TextStyle(color: Colors.white60, fontSize: 12),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${w.elevation.toInt()}m υψόμετρο',
+                      style: const TextStyle(color: Colors.white60, fontSize: 12),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${w.latitude.toStringAsFixed(5)}, ${w.longitude.toStringAsFixed(5)}',
                     style: const TextStyle(color: Colors.white60, fontSize: 12),
                   ),
                 ],
@@ -382,6 +393,8 @@ IconButton(
     );
   }
 }
+
+
 
 
 

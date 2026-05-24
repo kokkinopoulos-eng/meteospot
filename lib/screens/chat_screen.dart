@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/ai_service.dart';
@@ -90,6 +91,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _takePhoto() async {
     try {
+      final status = await Permission.camera.request();
+      if (!status.isGranted) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Χρειάζεται άδεια κάμερας.'), backgroundColor: Colors.orange));
+        return;
+      }
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.camera,
         imageQuality: 70,

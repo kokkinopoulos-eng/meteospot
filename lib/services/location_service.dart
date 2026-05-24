@@ -1,4 +1,5 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class LocationService {
   Future<Position> getCurrentLocation() async {
@@ -40,5 +41,19 @@ class LocationService {
         distanceFilter: 100, // ενημέρωση κάθε 100m
       ),
     );
+  }
+}
+
+Future<String> getLocationName(double lat, double lon) async {
+  try {
+    final placemarks = await placemarkFromCoordinates(lat, lon);
+    if (placemarks.isEmpty) return '';
+    final p = placemarks.first;
+    final parts = [p.locality, p.administrativeArea]
+        .where((s) => s != null && s.isNotEmpty)
+        .toList();
+    return parts.join(', ');
+  } catch (e) {
+    return '';
   }
 }

@@ -13,6 +13,7 @@ class WeatherData {
   final String description;
   final DateTime timestamp;
   final double elevation;
+  String locationName;
 
   // Sensor data (από το κινητό)
   double? sensorPressure;
@@ -35,6 +36,7 @@ class WeatherData {
     required this.description,
     required this.timestamp,
     required this.elevation,
+    this.locationName = '',
     this.sensorPressure,
     this.sensorTemperature,
     this.lightLevel,
