@@ -1,4 +1,4 @@
-package com.example.meteospot
+package gr.webdevelopment.metaiospot
 
 import io.flutter.embedding.android.FlutterActivity
 

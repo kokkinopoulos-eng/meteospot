@@ -164,7 +164,7 @@ class SensorService {
     }
 
     // ===== ΣΥΣΤΑΣΕΙΣ ΔΡΑΣΤΗΡΙΟΤΗΤΩΝ =====
-    final isGoodWeather = weatherCode < 50 && temperature >= 10 && temperature <= 30
+    final isGoodWeather = warnings.isEmpty && weatherCode < 50 && temperature >= 10 && temperature <= 30
         && (windSpeed ?? 0) < 30 && humidity < 80;
     
     if (isGoodWeather) {
