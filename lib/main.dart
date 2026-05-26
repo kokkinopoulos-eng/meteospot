@@ -1,18 +1,13 @@
-﻿import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/onboarding_screen.dart';
+import 'package:flutter/material.dart';
+import 'main_navigation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  final accepted = prefs.getBool('terms_accepted') ?? false;
-  runApp(MetAIoSpotApp(showOnboarding: !accepted));
+  runApp(const MetAIoSpotApp());
 }
 
 class MetAIoSpotApp extends StatelessWidget {
-  final bool showOnboarding;
-  const MetAIoSpotApp({super.key, this.showOnboarding = false});
+  const MetAIoSpotApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +22,7 @@ class MetAIoSpotApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: showOnboarding ? const OnboardingScreen() : const HomeScreen(),
+      home: const MainNavigation(),
     );
   }
 }
-

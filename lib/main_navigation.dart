@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+import 'screens/home_screen.dart';
+import 'screens/sun_moon_screen.dart';
+import 'screens/chat_screen.dart';
+import 'screens/settings_screen.dart';
+import 'models/weather_data.dart';
+
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  int _currentIndex = 0;
+  WeatherData? _weatherData;
+
+  void _onWeatherLoaded(WeatherData weather) {
+    setState(() => _weatherData = weather);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0D1B2A),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          HomeScreen(onWeatherLoaded: _onWeatherLoaded),
+          const SunMoonScreen(),
+          _weatherData != null
+              ? ChatScreen(weatherData: _weatherData!)
+              : const _NoWeatherPlaceholder(),
+          const SettingsScreen(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        backgroundColor: const Color(0xFF1A2744),
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.white54,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wb_sunny_outlined),
+            activeIcon: Icon(Icons.wb_sunny),
+            label: '\u039A\u03B1\u03B9\u03C1\u03CC\u03C2',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.nightlight_outlined),
+            activeIcon: Icon(Icons.nightlight),
+            label: '\u0389\u03BB\u03B9\u03BF\u03C2/\u03A3\u03B5\u03BB\u03AE\u03BD\u03B7',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'AI Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings),
+            label: '\u03A1\u03C5\u03B8\u03BC\u03AF\u03C3\u03B5\u03B9\u03C2',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NoWeatherPlaceholder extends StatelessWidget {
+  const _NoWeatherPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.cloud_off, color: Colors.white38, size: 64),
+            SizedBox(height: 16),
+            Text(
+              '\u03A0\u03C1\u03CE\u03C4\u03B1 \u03C6\u03CC\u03C1\u03C4\u03C9\u03C3\u03B5 \u03C4\u03BF\u03BD \u03BA\u03B1\u03B9\u03C1\u03CC',
+              style: TextStyle(color: Colors.white70, fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

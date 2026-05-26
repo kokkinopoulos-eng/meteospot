@@ -1,0 +1,521 @@
+﻿import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../services/ai_service.dart';
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final AIService _aiService = AIService();
+  final _geminiController = TextEditingController();
+  final _claudeController = TextEditingController();
+  final _chatgptController = TextEditingController();
+  AIProvider _selectedProvider = AIProvider.none;
+  bool _isLoading = true;
+  bool _showGeminiKey = false;
+  bool _showClaudeKey = false;
+  bool _showChatGPTKey = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final provider = await _aiService.getCurrentProvider();
+    final geminiKey = await _aiService.getApiKey(AIProvider.gemini);
+    final claudeKey = await _aiService.getApiKey(AIProvider.claude);
+    final chatgptKey = await _aiService.getApiKey(AIProvider.chatgpt);
+    setState(() {
+      _selectedProvider = provider;
+      if (geminiKey != null) _geminiController.text = geminiKey;
+      if (claudeKey != null) _claudeController.text = claudeKey;
+      if (chatgptKey != null) _chatgptController.text = chatgptKey;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _saveSettings() async {
+    if (_selectedProvider == AIProvider.none) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('β οΈ Ξ”ΞΉΞ¬Ξ»ΞµΞΎΞµ Ξ­Ξ½Ξ± AI Provider'),
+        backgroundColor: Colors.orange,
+      ));
+      return;
+    }
+    String key = '';
+    if (_selectedProvider == AIProvider.gemini) key = _geminiController.text.trim();
+    if (_selectedProvider == AIProvider.claude) key = _claudeController.text.trim();
+    if (_selectedProvider == AIProvider.chatgpt) key = _chatgptController.text.trim();
+    if (key.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('β οΈ Ξ’Ξ¬Ξ»Ξµ API key Ξ³ΞΉΞ± Ο„ΞΏΞ½ ΞµΟ€ΞΉΞ»ΞµΞ³ΞΌΞ­Ξ½ΞΏ provider'),
+        backgroundColor: Colors.orange,
+      ));
+      return;
+    }
+    await _aiService.saveApiKey(_selectedProvider, key);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('β… Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚ Ξ±Ο€ΞΏΞΈΞ·ΞΊΞµΟΟ„Ξ·ΞΊΞ±Ξ½!'),
+        backgroundColor: Colors.green,
+      ));
+      Navigator.pop(context);
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0D1B2A),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('β™οΈ Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚ AI',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: SafeArea(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: Colors.blue))
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoCard(),
+                    const SizedBox(height: 16),
+                    _buildProviderSelector(),
+                    const SizedBox(height: 16),
+                    _buildActiveProviderCard(),
+                    const SizedBox(height: 24),
+                    _buildSaveButton(),
+                    const SizedBox(height: 16),
+                    _buildDisclaimer(),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A2744),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Text('β„ΉοΈ', style: TextStyle(fontSize: 20)),
+            SizedBox(width: 8),
+            Text('AI ΞΞµΟ„ΞµΟ‰ΟΞΏΞ»ΟΞ³ΞΏΟ‚',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+          ]),
+          SizedBox(height: 8),
+          Text(
+            'Ξ§ΟΞ·ΟƒΞΉΞΌΞΏΟ€ΞΏΞ―Ξ·ΟƒΞµ Ο„ΞΏ Ξ΄ΞΉΞΊΟ ΟƒΞΏΟ… AI API key Ξ³ΞΉΞ± Ξ­ΞΎΟ…Ο€Ξ½Ξ· Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ· ΞΊΞ±ΞΉΟΞΏΟ, Ξ±Ο€Ξ±Ξ½Ο„Ξ®ΟƒΞµΞΉΟ‚ ΟƒΞµ ΞµΟΟ‰Ο„Ξ®ΟƒΞµΞΉΟ‚ ΞΊΞ±ΞΉ Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ· Ο†Ο‰Ο„ΞΏΞ³ΟΞ±Ο†ΞΉΟΞ½ ΞΏΟ…ΟΞ±Ξ½ΞΏΟ. Ξ¤ΞΏ key Ξ±Ο€ΞΏΞΈΞ·ΞΊΞµΟΞµΟ„Ξ±ΞΉ ΞΊΟΟ…Ο€Ο„ΞΏΞ³ΟΞ±Ο†Ξ·ΞΌΞ­Ξ½Ξ± ΞΞΞΞ ΟƒΟ„Ξ· ΟƒΟ…ΟƒΞΊΞµΟ…Ξ® ΟƒΞΏΟ….',
+            style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProviderSelector() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A2744),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Ξ•Ο€Ξ­Ξ»ΞµΞΎΞµ AI Provider:',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(child: _buildProviderButton('π¨ Gemini', 'FREE', AIProvider.gemini, isFree: true)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildProviderButton('π¦ Claude', 'Paid', AIProvider.claude)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildProviderButton('π© GPT', 'Paid', AIProvider.chatgpt)),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProviderButton(String name, String badge, AIProvider provider, {bool isFree = false}) {
+    final isSelected = _selectedProvider == provider;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedProvider = provider),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue.withValues(alpha: 0.3) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? Colors.blue : Colors.white24, width: isSelected ? 2 : 1),
+        ),
+        child: Column(children: [
+          Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: isFree ? Colors.green : Colors.orange,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(badge, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Widget _buildActiveProviderCard() {
+    if (_selectedProvider == AIProvider.none) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1A2744),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: const Center(
+          child: Text('π‘† Ξ•Ο€Ξ­Ξ»ΞµΞΎΞµ Ξ­Ξ½Ξ±Ξ½ AI Provider Ο€Ξ±ΟΞ±Ο€Ξ¬Ξ½Ο‰',
+              style: TextStyle(color: Colors.white54, fontSize: 14)),
+        ),
+      );
+    }
+    if (_selectedProvider == AIProvider.gemini) return _buildGeminiCard();
+    if (_selectedProvider == AIProvider.claude) return _buildClaudeCard();
+    return _buildChatGPTCard();
+  }
+
+  Widget _buildGeminiCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A2744),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.green, width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            const Text('π¨', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: 8),
+            const Text('Google Gemini',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(8)),
+              child: const Text('Ξ”Ξ©Ξ΅Ξ•Ξ‘Ξ', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+            ),
+          ]),
+          const SizedBox(height: 12),
+          _buildInfoRow('π’°', 'ΞΟΟƒΟ„ΞΏΟ‚', 'Ξ”Ο‰ΟΞµΞ¬Ξ½ ΞΌΞµ Google account'),
+          _buildInfoRow('β΅', 'ΞΟΞΉΞΏ', '15 ΞµΟΟ‰Ο„Ξ®ΟƒΞµΞΉΟ‚/Ξ»ΞµΟ€Ο„Ο'),
+          _buildInfoRow('π“·', 'Ξ¦Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―ΞµΟ‚', 'Ξ¥Ο€ΞΏΟƒΟ„Ξ·ΟΞ―Ξ¶ΞµΞΉ Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ· ΞΏΟ…ΟΞ±Ξ½ΞΏΟ'),
+          _buildInfoRow('π', 'Ξ“Ξ»ΟΟƒΟƒΞµΟ‚', 'Ξ•Ξ»Ξ»Ξ·Ξ½ΞΉΞΊΞ¬ & Ξ‘Ξ³Ξ³Ξ»ΞΉΞΊΞ¬'),
+          const SizedBox(height: 12),
+          const Text('π“‹ Ξ ΟΟ‚ Ξ½Ξ± Ο€Ξ¬ΟΞµΞΉΟ‚ key:',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+          const SizedBox(height: 6),
+          _buildStep('1', 'Ξ Ξ®Ξ³Ξ±ΞΉΞ½Ξµ ΟƒΟ„ΞΏ aistudio.google.com'),
+          _buildStep('2', 'Ξ£ΟΞ½Ξ΄ΞµΟƒΞµ Ο„ΞΏ Google account ΟƒΞΏΟ…'),
+          _buildStep('3', 'Ξ Ξ¬Ο„Ξ± "Get API Key" β†’ "Create API Key"'),
+          _buildStep('4', 'Ξ‘Ξ½Ο„Ξ―Ξ³ΟΞ±ΟΞµ Ο„ΞΏ key ΞΊΞ±ΞΉ ΞµΟ€ΞΉΞΊΟΞ»Ξ»Ξ·ΟƒΞ­ Ο„ΞΏ Ο€Ξ±ΟΞ±ΞΊΞ¬Ο„Ο‰'),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () => _launchUrl('https://aistudio.google.com/apikey'),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green),
+              ),
+              child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(Icons.open_in_new, color: Colors.green, size: 16),
+                SizedBox(width: 8),
+                Text('Ξ†Ξ½ΞΏΞΉΞΎΞµ Ο„ΞΏ Google AI Studio',
+                    style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _geminiController,
+            obscureText: !_showGeminiKey,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'AIzaSy...',
+              hintStyle: const TextStyle(color: Colors.white38),
+              labelText: 'Gemini API Key',
+              labelStyle: const TextStyle(color: Colors.white54),
+              filled: true,
+              fillColor: Colors.white10,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              suffixIcon: IconButton(
+                icon: Icon(_showGeminiKey ? Icons.visibility_off : Icons.visibility, color: Colors.white54),
+                onPressed: () => setState(() => _showGeminiKey = !_showGeminiKey),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClaudeCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A2744),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue, width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(children: [
+            Text('π¦', style: TextStyle(fontSize: 24)),
+            SizedBox(width: 8),
+            Text('Anthropic Claude',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+            SizedBox(width: 8),
+            Chip(
+              label: Text('Paid', style: TextStyle(color: Colors.white, fontSize: 11)),
+              backgroundColor: Colors.orange,
+              padding: EdgeInsets.zero,
+            ),
+          ]),
+          const SizedBox(height: 12),
+          _buildInfoRow('π’°', 'ΞΟΟƒΟ„ΞΏΟ‚', '~\$0.001 Ξ±Ξ½Ξ¬ ΞµΟΟΟ„Ξ·ΟƒΞ· (claude-haiku)'),
+          _buildInfoRow('π', 'ΞΞ­ΞΏΞΉ Ο‡ΟΞ®ΟƒΟ„ΞµΟ‚', '\$5 Ξ΄Ο‰ΟΞµΞ¬Ξ½ credits'),
+          _buildInfoRow('β­', 'Ξ ΞΏΞΉΟΟ„Ξ·Ο„Ξ±', 'Ξ•ΞΎΞ±ΞΉΟΞµΟ„ΞΉΞΊΞ® ΞΊΞ±Ο„Ξ±Ξ½ΟΞ·ΟƒΞ·'),
+          _buildInfoRow('π“·', 'Ξ¦Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―ΞµΟ‚', 'Ξ¥Ο€ΞΏΟƒΟ„Ξ·ΟΞ―Ξ¶ΞµΞΉ Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ· ΞΏΟ…ΟΞ±Ξ½ΞΏΟ'),
+          const SizedBox(height: 12),
+          const Text('π“‹ Ξ ΟΟ‚ Ξ½Ξ± Ο€Ξ¬ΟΞµΞΉΟ‚ key:',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+          const SizedBox(height: 6),
+          _buildStep('1', 'Ξ Ξ®Ξ³Ξ±ΞΉΞ½Ξµ ΟƒΟ„ΞΏ console.anthropic.com'),
+          _buildStep('2', 'Ξ”Ξ·ΞΌΞΉΞΏΟΟΞ³Ξ·ΟƒΞµ Ξ»ΞΏΞ³Ξ±ΟΞΉΞ±ΟƒΞΌΟ'),
+          _buildStep('3', 'Settings β†’ API Keys β†’ Create Key'),
+          _buildStep('4', 'Ξ‘Ξ½Ο„Ξ―Ξ³ΟΞ±ΟΞµ Ο„ΞΏ key ΞΊΞ±ΞΉ ΞµΟ€ΞΉΞΊΟΞ»Ξ»Ξ·ΟƒΞ­ Ο„ΞΏ Ο€Ξ±ΟΞ±ΞΊΞ¬Ο„Ο‰'),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () => _launchUrl('https://console.anthropic.com'),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(Icons.open_in_new, color: Colors.blue, size: 16),
+                SizedBox(width: 8),
+                Text('Ξ†Ξ½ΞΏΞΉΞΎΞµ Ο„ΞΏ Anthropic Console',
+                    style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _claudeController,
+            obscureText: !_showClaudeKey,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'sk-ant-...',
+              hintStyle: const TextStyle(color: Colors.white38),
+              labelText: 'Claude API Key',
+              labelStyle: const TextStyle(color: Colors.white54),
+              filled: true,
+              fillColor: Colors.white10,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              suffixIcon: IconButton(
+                icon: Icon(_showClaudeKey ? Icons.visibility_off : Icons.visibility, color: Colors.white54),
+                onPressed: () => setState(() => _showClaudeKey = !_showClaudeKey),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChatGPTCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A2744),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.green, width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(children: [
+            Text('π©', style: TextStyle(fontSize: 24)),
+            SizedBox(width: 8),
+            Text('OpenAI ChatGPT',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+            SizedBox(width: 8),
+            Chip(
+              label: Text('Paid', style: TextStyle(color: Colors.white, fontSize: 11)),
+              backgroundColor: Colors.orange,
+              padding: EdgeInsets.zero,
+            ),
+          ]),
+          const SizedBox(height: 12),
+          _buildInfoRow('π’°', 'ΞΟΟƒΟ„ΞΏΟ‚', '~\$0.0002 Ξ±Ξ½Ξ¬ ΞµΟΟΟ„Ξ·ΟƒΞ· (gpt-4o-mini)'),
+          _buildInfoRow('π', 'ΞΞ­ΞΏΞΉ Ο‡ΟΞ®ΟƒΟ„ΞµΟ‚', '\$5 Ξ΄Ο‰ΟΞµΞ¬Ξ½ credits'),
+          _buildInfoRow('β΅', 'Ξ¤Ξ±Ο‡ΟΟ„Ξ·Ο„Ξ±', 'Ξ ΞΏΞ»Ο Ξ³ΟΞ®Ξ³ΞΏΟΞΏ'),
+          _buildInfoRow('π“·', 'Ξ¦Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―ΞµΟ‚', 'Ξ¥Ο€ΞΏΟƒΟ„Ξ·ΟΞ―Ξ¶ΞµΞΉ Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ· ΞΏΟ…ΟΞ±Ξ½ΞΏΟ'),
+          const SizedBox(height: 12),
+          const Text('π“‹ Ξ ΟΟ‚ Ξ½Ξ± Ο€Ξ¬ΟΞµΞΉΟ‚ key:',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+          const SizedBox(height: 6),
+          _buildStep('1', 'Ξ Ξ®Ξ³Ξ±ΞΉΞ½Ξµ ΟƒΟ„ΞΏ platform.openai.com'),
+          _buildStep('2', 'Ξ”Ξ·ΞΌΞΉΞΏΟΟΞ³Ξ·ΟƒΞµ Ξ»ΞΏΞ³Ξ±ΟΞΉΞ±ΟƒΞΌΟ'),
+          _buildStep('3', 'API Keys β†’ Create new secret key'),
+          _buildStep('4', 'Ξ‘Ξ½Ο„Ξ―Ξ³ΟΞ±ΟΞµ Ο„ΞΏ key ΞΊΞ±ΞΉ ΞµΟ€ΞΉΞΊΟΞ»Ξ»Ξ·ΟƒΞ­ Ο„ΞΏ Ο€Ξ±ΟΞ±ΞΊΞ¬Ο„Ο‰'),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () => _launchUrl('https://platform.openai.com/api-keys'),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green),
+              ),
+              child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(Icons.open_in_new, color: Colors.green, size: 16),
+                SizedBox(width: 8),
+                Text('Ξ†Ξ½ΞΏΞΉΞΎΞµ Ο„ΞΏ OpenAI Platform',
+                    style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _chatgptController,
+            obscureText: !_showChatGPTKey,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'sk-...',
+              hintStyle: const TextStyle(color: Colors.white38),
+              labelText: 'ChatGPT API Key',
+              labelStyle: const TextStyle(color: Colors.white54),
+              filled: true,
+              fillColor: Colors.white10,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              suffixIcon: IconButton(
+                icon: Icon(_showChatGPTKey ? Icons.visibility_off : Icons.visibility, color: Colors.white54),
+                onPressed: () => setState(() => _showChatGPTKey = !_showChatGPTKey),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String emoji, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(children: [
+        Text(emoji, style: const TextStyle(fontSize: 16)),
+        const SizedBox(width: 8),
+        Text('$label: ', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+        Flexible(child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 13))),
+      ]),
+    );
+  }
+
+  Widget _buildStep(String step, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+          width: 20, height: 20,
+          decoration: const BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
+          child: Center(child: Text(step, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold))),
+        ),
+        const SizedBox(width: 8),
+        Flexible(child: Text(text, style: const TextStyle(color: Colors.white70, fontSize: 13))),
+      ]),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _saveSettings,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        child: const Text('Ξ‘Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ·',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+      ),
+    );
+  }
+
+  Widget _buildDisclaimer() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('β–οΈ ΞΞΏΞΌΞΉΞΊΞ® Ξ£Ξ·ΞΌΞµΞ―Ο‰ΟƒΞ·',
+              style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
+          SizedBox(height: 6),
+          Text(
+            'GeminiΒ® ΞµΞ―Ξ½Ξ±ΞΉ ΞµΞΌΟ€ΞΏΟΞΉΞΊΟ ΟƒΞ®ΞΌΞ± Ο„Ξ·Ο‚ Google LLC. ClaudeΒ® ΞµΞ―Ξ½Ξ±ΞΉ ΞµΞΌΟ€ΞΏΟΞΉΞΊΟ ΟƒΞ®ΞΌΞ± Ο„Ξ·Ο‚ Anthropic PBC. ChatGPTΒ® ΞΊΞ±ΞΉ GPTΒ® ΞµΞ―Ξ½Ξ±ΞΉ ΞµΞΌΟ€ΞΏΟΞΉΞΊΞ¬ ΟƒΞ®ΞΌΞ±Ο„Ξ± Ο„Ξ·Ο‚ OpenAI. Ξ¤ΞΏ MetAIoSpot Ξ΄ΞµΞ½ ΟƒΟ…Ξ½Ξ΄Ξ­ΞµΟ„Ξ±ΞΉ, Ξ΄ΞµΞ½ Ο‡ΟΞ·ΞΌΞ±Ο„ΞΏΞ΄ΞΏΟ„ΞµΞ―Ο„Ξ±ΞΉ ΞΏΟΟ„Ξµ ΞµΞ³ΞΊΟΞ―Ξ½ΞµΟ„Ξ±ΞΉ Ξ±Ο€Ο Ξ±Ο…Ο„Ξ­Ο‚ Ο„ΞΉΟ‚ ΞµΟ„Ξ±ΞΉΟΞµΞ―ΞµΟ‚.\n\nΞΞΉ Ο‡ΟΞµΟΟƒΞµΞΉΟ‚ API ΞµΞ―Ξ½Ξ±ΞΉ Ξ±Ο€ΞΏΞΊΞ»ΞµΞΉΟƒΟ„ΞΉΞΊΞ¬ ΞµΟ…ΞΈΟΞ½Ξ· ΟƒΞΏΟ…. Ξ£Ο…ΞΌΞΌΞΏΟΟ†ΟΞ½ΞµΟƒΞ±ΞΉ ΞΌΞµ Ο„ΞΏΟ…Ο‚ ΟΟΞΏΟ…Ο‚ Ο‡ΟΞ®ΟƒΞ·Ο‚ Ο„ΞΏΟ… ΞΊΞ¬ΞΈΞµ provider. Ξ¤Ξ± API keys Ξ±Ο€ΞΏΞΈΞ·ΞΊΞµΟΞΏΞ½Ο„Ξ±ΞΉ ΞΊΟΟ…Ο€Ο„ΞΏΞ³ΟΞ±Ο†Ξ·ΞΌΞ­Ξ½Ξ± ΞΌΟΞ½ΞΏ Ο„ΞΏΟ€ΞΉΞΊΞ¬ ΟƒΟ„Ξ· ΟƒΟ…ΟƒΞΊΞµΟ…Ξ® ΟƒΞΏΟ… ΞΊΞ±ΞΉ Ξ΄ΞµΞ½ Ξ±Ο€ΞΏΟƒΟ„Ξ­Ξ»Ξ»ΞΏΞ½Ο„Ξ±ΞΉ ΟƒΞµ servers Ο„ΞΏΟ… MetAIoSpot.',
+            style: TextStyle(color: Colors.white38, fontSize: 10, height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _geminiController.dispose();
+    _claudeController.dispose();
+    _chatgptController.dispose();
+    super.dispose();
+  }
+}
