@@ -1,4 +1,5 @@
-import 'dart:io';
+﻿import 'dart:io';
+import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,11 +24,11 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _hasApiKey = false;
 
   final List<String> _quickQuestions = [
-    'Να βγω για περπάτημα;',
-    'Θα βρέξει σήμερα;',
-    'Πόσο κρύο είναι;',
-    'Καλός για ψάρεμα;',
-    'Πότε θα βελτιωθεί;',
+    'ΞΞ± Ξ²Ξ³Ο‰ Ξ³ΞΉΞ± Ο€ΞµΟΟ€Ξ¬Ο„Ξ·ΞΌΞ±;',
+    'ΞΞ± Ξ²ΟΞ­ΞΎΞµΞΉ ΟƒΞ®ΞΌΞµΟΞ±;',
+    'Ξ ΟΟƒΞΏ ΞΊΟΟΞΏ ΞµΞ―Ξ½Ξ±ΞΉ;',
+    'ΞΞ±Ξ»ΟΟ‚ Ξ³ΞΉΞ± ΟΞ¬ΟΞµΞΌΞ±;',
+    'Ξ ΟΟ„Ξµ ΞΈΞ± Ξ²ΞµΞ»Ο„ΞΉΟ‰ΞΈΞµΞ―;',
   ];
 
   @override
@@ -80,8 +81,8 @@ class _ChatScreenState extends State<ChatScreen> {
           'role': 'assistant',
           'type': 'text',
           'content': e.toString().contains('no_key')
-              ? '⚙️ Δεν έχεις ρυθμίσει API key.\n\nΠήγαινε στις Ρυθμίσεις (⚙️) και πρόσθεσε Gemini, Claude ή ChatGPT key.'
-              : '❌ Σφάλμα: ${e.toString().replaceAll("Exception: ", "")}',
+              ? '⚙️ Δεν εχεις ρυθμισει API key.\n\nΠηγαινε στις ρυθμισεις (⚙️) και προσθεσε Gemini, Claude η ChatGPT key.'
+              : 'β Ξ£Ο†Ξ¬Ξ»ΞΌΞ±: ${e.toString().replaceAll("Exception: ", "")}',
         });
         _isLoading = false;
       });
@@ -93,7 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final status = await Permission.camera.request();
       if (!status.isGranted) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Χρειάζεται άδεια κάμερας.'), backgroundColor: Colors.orange));
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ξ§ΟΞµΞΉΞ¬Ξ¶ΞµΟ„Ξ±ΞΉ Ξ¬Ξ΄ΞµΞΉΞ± ΞΊΞ¬ΞΌΞµΟΞ±Ο‚.'), backgroundColor: Colors.orange));
         return;
       }
       final XFile? photo = await _picker.pickImage(
@@ -123,8 +124,8 @@ class _ChatScreenState extends State<ChatScreen> {
           'role': 'assistant',
           'type': 'text',
           'content': e.toString().contains('no_key')
-              ? '⚙️ Χρειάζεσαι API key για ανάλυση φωτογραφίας.'
-              : '❌ Σφάλμα: ${e.toString().replaceAll("Exception: ", "")}',
+              ? '⚙️ Χρειαζεσαι API key για αναλυση φωτογραφιας.'
+              : 'β Ξ£Ο†Ξ¬Ξ»ΞΌΞ±: ${e.toString().replaceAll("Exception: ", "")}',
         });
         _isLoading = false;
       });
@@ -151,14 +152,34 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('🤖 AI Μετεωρολόγος',
+        title: const Text('π¤– AI ΞΞµΟ„ΞµΟ‰ΟΞΏΞ»ΟΞ³ΞΏΟ‚',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.white),
+            onPressed: () {
+              final aiMessages = _messages.where((m) => m['role'] == 'assistant').toList();
+              if (aiMessages.isEmpty) return;
+              final last = aiMessages.last['content'] as String;
+              SharePlus.instance.share(ShareParams(text: 'MetAIoSpot AI:\n$last'));
+            },
+            tooltip: 'Κοινοποίηση',
+          ),
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.white),
+            onPressed: () {
+              final aiMessages = _messages.where((m) => m['role'] == 'assistant').toList();
+              if (aiMessages.isEmpty) return;
+              final last = aiMessages.last['content'] as String;
+              SharePlus.instance.share(ShareParams(text: 'MetAIoSpot AI:\n$last'));
+            },
+            tooltip: 'Κοινοποίηση',
+          ),
           if (_hasApiKey)
             IconButton(
               icon: const Icon(Icons.camera_alt, color: Colors.white),
-              tooltip: 'Φωτογράφισε τον ουρανό',
+              tooltip: 'Ξ¦Ο‰Ο„ΞΏΞ³ΟΞ¬Ο†ΞΉΟƒΞµ Ο„ΞΏΞ½ ΞΏΟ…ΟΞ±Ξ½Ο',
               onPressed: _takePhoto,
             ),
         ],
@@ -185,7 +206,7 @@ class _ChatScreenState extends State<ChatScreen> {
         SizedBox(width: 8),
         Flexible(
           child: Text(
-            'Δεν έχεις API key. Πήγαινε στις ⚙️ Ρυθμίσεις.',
+            'Ξ”ΞµΞ½ Ξ­Ο‡ΞµΞΉΟ‚ API key. Ξ Ξ®Ξ³Ξ±ΞΉΞ½Ξµ ΟƒΟ„ΞΉΟ‚ β™οΈ Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚.',
             style: TextStyle(color: Colors.orange, fontSize: 12),
           ),
         ),
@@ -203,10 +224,10 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(w.weatherEmoji, style: const TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
-            Text('${w.temperature.toStringAsFixed(1)}°C - ${w.description}',
+            Text('${w.temperature.toStringAsFixed(1)}Β°C - ${w.description}',
                 style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            const Text('Ρώτα με για τον καιρό!',
+            const Text('Ξ΅ΟΟ„Ξ± ΞΌΞµ Ξ³ΞΉΞ± Ο„ΞΏΞ½ ΞΊΞ±ΞΉΟΟ!',
                 style: TextStyle(color: Colors.white54, fontSize: 14)),
             if (_hasApiKey) ...[
               const SizedBox(height: 16),
@@ -220,7 +241,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(Icons.camera_alt, color: Colors.blue, size: 16),
                   SizedBox(width: 8),
-                  Text('Πάτα 📷 για ανάλυση ουρανού',
+                  Text('Ξ Ξ¬Ο„Ξ± π“· Ξ³ΞΉΞ± Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ· ΞΏΟ…ΟΞ±Ξ½ΞΏΟ',
                       style: TextStyle(color: Colors.blue, fontSize: 13)),
                 ]),
               ),
@@ -261,7 +282,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Image.file(File(path), width: 200, height: 150, fit: BoxFit.cover),
                 ),
                 const SizedBox(height: 4),
-                const Text('📷 Φωτογραφία ουρανού',
+                const Text('π“· Ξ¦Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―Ξ± ΞΏΟ…ΟΞ±Ξ½ΞΏΟ',
                     style: TextStyle(color: Colors.white54, fontSize: 11)),
               ],
             ),
@@ -280,7 +301,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           if (!isUser) ...[
             const CircleAvatar(backgroundColor: Colors.blue, radius: 16,
-                child: Text('🤖', style: TextStyle(fontSize: 14))),
+                child: Text('π¤–', style: TextStyle(fontSize: 14))),
             const SizedBox(width: 8),
           ],
           Flexible(
@@ -310,7 +331,7 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(children: [
         const CircleAvatar(backgroundColor: Colors.blue, radius: 16,
-            child: Text('🤖', style: TextStyle(fontSize: 14))),
+            child: Text('π¤–', style: TextStyle(fontSize: 14))),
         const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.all(12),
@@ -318,7 +339,7 @@ class _ChatScreenState extends State<ChatScreen> {
           child: const Row(children: [
             SizedBox(width: 40, child: LinearProgressIndicator(color: Colors.blue)),
             SizedBox(width: 8),
-            Text('Αναλύω...', style: TextStyle(color: Colors.white54, fontSize: 13)),
+            Text('Ξ‘Ξ½Ξ±Ξ»ΟΟ‰...', style: TextStyle(color: Colors.white54, fontSize: 13)),
           ]),
         ),
       ]),
@@ -364,7 +385,7 @@ class _ChatScreenState extends State<ChatScreen> {
             controller: _controller,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              hintText: 'Ρώτα για τον καιρό...',
+              hintText: 'Ξ΅ΟΟ„Ξ± Ξ³ΞΉΞ± Ο„ΞΏΞ½ ΞΊΞ±ΞΉΟΟ...',
               hintStyle: const TextStyle(color: Colors.white38),
               filled: true,
               fillColor: const Color(0xFF1A2744),
