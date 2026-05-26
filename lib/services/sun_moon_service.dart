@@ -27,10 +27,13 @@ class SunMoonService {
     final solarNoon = 12 - longitude / 15;
     final sunriseHour = solarNoon - hourAngle * 12 / pi;
     final sunsetHour = solarNoon + hourAngle * 12 / pi;
+    final tzOffset = DateTime.now().timeZoneOffset;
     final sunrise = DateTime(date.year, date.month, date.day)
-        .add(Duration(milliseconds: (sunriseHour * 3600000).round()));
+        .add(Duration(milliseconds: (sunriseHour * 3600000).round()))
+        .add(tzOffset);
     final sunset = DateTime(date.year, date.month, date.day)
-        .add(Duration(milliseconds: (sunsetHour * 3600000).round()));
+        .add(Duration(milliseconds: (sunsetHour * 3600000).round()))
+        .add(tzOffset);
     final dayLength = sunset.difference(sunrise);
     final knownNewMoon = DateTime(2000, 1, 6, 18, 14);
     final daysSince = date.difference(knownNewMoon).inMilliseconds / 86400000.0;

@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:sensors_plus/sensors_plus.dart';
 import '../models/sensor_data.dart';
 

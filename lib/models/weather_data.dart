@@ -1,16 +1,16 @@
 class WeatherData {
   final double latitude;
   final double longitude;
-  final double temperature;
+  double temperature;
   final double feelsLike;
-  final double humidity;
-  final double windSpeed;
+  double humidity;
+  double windSpeed;
   final double windDirection;
   final double pressure;
   final double uvIndex;
   final double visibility;
-  final int weatherCode;
-  final String description;
+  int weatherCode;
+  String description;
   final DateTime timestamp;
   final double elevation;
   String locationName;

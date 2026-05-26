@@ -111,7 +111,7 @@ class AIService {
     } else if (response.statusCode == 400) {
       throw Exception('Λάθος API key.');
     } else if (response.statusCode == 429) {
-      throw Exception('Έχεις ξεπεράσει το όριο. Δοκίμασε αργότερα.');
+        throw Exception('\u0394\u03C9\u03C1\u03B5\u03AC\u03BD \u03CC\u03C1\u03B9\u03BF Gemini. \u0386\u03BB\u03BB\u03B1\u03BE\u03B5 provider \u03AE \u03B4\u03BF\u03BA\u03AF\u03BC\u03B1\u03C3\u03B5 \u03B1\u03C1\u03B3\u03CC\u03C4\u03B5\u03C1\u03B1.');
     } else {
       throw Exception('Σφάλμα Gemini: ${response.statusCode}');
     }
