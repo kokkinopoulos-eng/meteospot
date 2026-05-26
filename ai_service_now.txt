@@ -6,7 +6,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 enum AIProvider { gemini, claude, chatgpt, none }
 
 class AIService {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+  );
 
   static const String _geminiKeyName = 'gemini_api_key';
   static const String _claudeKeyName = 'claude_api_key';
@@ -60,12 +64,7 @@ class AIService {
       'weather', 'rain', 'snow', 'wind', 'temperature', 'cloud',
       'να βγω', 'να πάω', 'να οδηγήσω', 'ασφαλές', 'κρύο', 'ζέστη',
       'uv', 'ορατότητα', 'υψόμετρο', 'πρόβλεψη', 'forecast',
-      'sunny', 'cloudy',
-      'παραλία', 'παραλίες', 'θάλασσα', 'κύμα', 'κύματα',
-      'κολύμπι', 'κολύμβηση', 'surf', 'σερφ', 'ιστιοπλοΐα',
-      'μποφόρ', 'beaufort', 'sea', 'wave', 'beach', 'marine',
-      'ακτή', 'ακτές', 'λιμάνι', 'σκάφος', 'βάρκα',
-      'ψαράς', 'κατάδυση', 'snorkel', 'sup', 'kitesurfing', 'storm', 'thunder', 'lightning', 'fog',
+      'sunny', 'cloudy', 'storm', 'thunder', 'lightning', 'fog',
       'παγετός', 'πάγος', 'χαλάζι', 'μπόρα', 'ομπρέλα', 'αντιηλιακό',
       'σήμερα', 'αύριο', 'απόγευμα', 'πρωί', 'βράδυ', 'εβδομάδα',
       'today', 'tomorrow', 'morning', 'evening', 'weekend',
@@ -82,8 +81,8 @@ class AIService {
   }
 
   static const String _systemPrompt =
-    'Είσαι έμπειρος μετεωρολόγος που αναλύει τοπικές καιρικές συνθήκες και θαλάσσιες δραστηριότητες. '
-    'Απαντάς ΜΟΝΟ σε ερωτήσεις σχετικές με καιρό, θάλασσα, κύματα, παραλίες και δραστηριότητες που επηρεάζονται από αυτά. '
+    'Είσαι έμπειρος μετεωρολόγος που αναλύει τοπικές καιρικές συνθήκες. '
+    'Απαντάς ΜΟΝΟ σε ερωτήσεις σχετικές με καιρό και δραστηριότητες που επηρεάζονται από αυτόν. '
     'Αν η ερώτηση είναι ΑΣΧΕΤΗ, απάντα: "🌤️ Μπορώ να απαντήσω μόνο σε ερωτήσεις σχετικές με τον καιρό!" '
     'Δίνεις σύντομες, χρήσιμες απαντήσεις στα Ελληνικά. '
     'Πάντα προσθέτεις: "⚠️ Για δραστηριότητες με κίνδυνο, συμβουλευτείτε ΕΜΥ."';

@@ -59,13 +59,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ));
       return;
     }
-    await _aiService.saveApiKey(_selectedProvider, key);
+    try {
+      await _aiService.saveApiKey(_selectedProvider, key);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Σφαλμα: $e'),
+          backgroundColor: Colors.red,
+        ));
+      }
+      return;
+    }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('✅ Ρυθμίσεις αποθηκεύτηκαν!'),
         backgroundColor: Colors.green,
       ));
-      Navigator.pop(context);
+      // Navigator.pop removed - settings is now a tab
     }
   }
 
