@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main_navigation.dart';
 import 'onboarding_screen.dart';
-import '../services/trial_service.dart';
-import 'trial_wall_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -49,18 +47,9 @@ class _SplashScreenState extends State<SplashScreen>
       return;
     }
 
-    final trial = await TrialService.getTrialStatus();
-    if (!mounted) return;
-
-    if (trial.hasFullAccess) {
-      Navigator.of(context).pushReplacement(
+    Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const MainNavigation()),
       );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const TrialWallScreen()),
-      );
-    }
   }
 
   @override
