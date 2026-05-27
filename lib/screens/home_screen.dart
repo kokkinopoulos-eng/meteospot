@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 import '../services/weather_service.dart';
 import '../services/location_service.dart';
 import '../services/sensor_service.dart';
@@ -225,6 +226,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.share, color: Colors.white),
+                onPressed: () {
+                  if (_weatherData != null) {
+                    final w = _weatherData!;
+                    SharePlus.instance.share(ShareParams(text: 'MetAIo Spot\n' + w.locationName + '\n' + w.temperature.toStringAsFixed(1) + '°C ' + w.description + '\nΥγρασία: ' + w.humidity.toInt().toString() + '% | Άνεμος: ' + w.windSpeed.toStringAsFixed(1) + ' km/h'));
+                  }
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.refresh, color: Colors.white),
                 onPressed: _loadWeather,

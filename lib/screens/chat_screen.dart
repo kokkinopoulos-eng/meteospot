@@ -168,16 +168,7 @@ class _ChatScreenState extends State<ChatScreen> {
             },
             tooltip: 'Κοινοποίηση',
           ),
-          IconButton(
-            icon: const Icon(Icons.share, color: Colors.white),
-            onPressed: () {
-              final aiMessages = _messages.where((m) => m['role'] == 'assistant').toList();
-              if (aiMessages.isEmpty) return;
-              final last = aiMessages.last['content'] as String;
-              SharePlus.instance.share(ShareParams(text: 'MetAIoSpot AI:\n$last'));
-            },
-            tooltip: 'Κοινοποίηση',
-          ),
+
           if (_hasApiKey)
             IconButton(
               icon: const Icon(Icons.camera_alt, color: Colors.white),

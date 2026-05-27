@@ -29,7 +29,7 @@ android {
     signingConfigs {
         create("release") {
             keyAlias = "metaiospot"
-            keyPassword = "ΒΑΛΕ_ΤΟ_PASSWORD_ΣΟΥ"
+            keyPassword = "Hkok1n@k1k1z@s"
             storeFile = file("../../metaiospot-release.jks")
             storePassword = "Hkok1n@k1k1z@s"
         }
@@ -37,9 +37,6 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
         }
     }
 }
