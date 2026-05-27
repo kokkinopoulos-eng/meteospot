@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'home_screen.dart';
+import '../main_navigation.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -11,7 +11,7 @@ class OnboardingScreen extends StatelessWidget {
     await prefs.setBool('terms_accepted', true);
     if (context.mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const MainNavigation()),
       );
     }
   }
@@ -27,7 +27,7 @@ class OnboardingScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF0D1B2A),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               const Spacer(),
@@ -54,16 +54,15 @@ class OnboardingScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(alignment: WrapAlignment.center,
                       children: [
                         TextButton(
-                          onPressed: () => _openUrl('https://webdevelopment.gr/metaiospot/privacy.html'),
+                          onPressed: () => _openUrl('https://kokkinopoulos-eng.github.io/metaiospot-legal/privacy.html'),
                           child: const Text('Πολιτική Απορρήτου', style: TextStyle(color: Colors.blue, fontSize: 13)),
                         ),
                         const Text('·', style: TextStyle(color: Colors.white38)),
                         TextButton(
-                          onPressed: () => _openUrl('https://webdevelopment.gr/metaiospot/terms.html'),
+                          onPressed: () => _openUrl('https://kokkinopoulos-eng.github.io/metaiospot-legal/terms.html'),
                           child: const Text('Όροι Χρήσης', style: TextStyle(color: Colors.blue, fontSize: 13)),
                         ),
                       ],
@@ -78,7 +77,7 @@ class OnboardingScreen extends StatelessWidget {
                   onPressed: () => _accept(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   child: const Text('Αποδέχομαι και Συνεχίζω', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
