@@ -47,5 +47,6 @@ flutter:
 
   assets:
     - assets/app_icon.png
+    - assets/blank_splash.png
     - assets/animations/
     - assets/icons/

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main_navigation.dart';
 import 'screens/trial_wall_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'services/trial_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,7 +27,7 @@ class MetAIoSpotApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: const AppStartup(),
+      home: const SplashScreen(),
     );
   }
 }

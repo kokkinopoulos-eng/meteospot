@@ -219,9 +219,9 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Met', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                Text('Met', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0)),
                 Text('AI', style: TextStyle(color: Color(0xFFFFD700), fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                Text('oSpot', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                Text('o Spot', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0)),
               ],
             ),
             actions: [
