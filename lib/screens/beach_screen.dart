@@ -23,16 +23,22 @@ class _BeachScreenState extends State<BeachScreen> {
 
   Future<void> _searchBeach(String query) async {
     if (query.trim().isEmpty) return;
-    setState(() { _isLoading = true; _errorMessage = null; _beachData = null; _aiAnalysis = null; });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _beachData = null;
+      _aiAnalysis = null;
+    });
 
-    // Geocode
     final geo = await BeachService.geocodePlace(query);
     if (geo == null) {
-      setState(() { _isLoading = false; _errorMessage = 'Ξ”ΞµΞ½ Ξ²ΟΞ­ΞΈΞ·ΞΊΞµ Ξ· Ο„ΞΏΟ€ΞΏΞΈΞµΟƒΞ―Ξ±. Ξ”ΞΏΞΊΞ―ΞΌΞ±ΟƒΞµ Ξ»ΞΉΞ³ΟΟ„ΞµΟΞΏ Ξ³ΞµΞ½ΞΉΞΊΞ¬.'; });
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Δεν βρέθηκε η τοποθεσία. Δοκίμασε λιγότερο γενικά.';
+      });
       return;
     }
 
-    // Get beach data
     final data = await BeachService.getBeachData(
       geo['name'], geo['latitude'], geo['longitude']
     );
@@ -43,7 +49,7 @@ class _BeachScreenState extends State<BeachScreen> {
         _beachData = data;
         _getAiAnalysis(data);
       } else {
-        _errorMessage = 'Ξ”ΞµΞ½ Ξ²ΟΞ­ΞΈΞ·ΞΊΞ±Ξ½ Ξ΄ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ± ΞΈΞ±Ξ»Ξ¬ΟƒΟƒΞ·Ο‚. Ξ‘Ξ½ Ξ· Ο„ΞΏΟ€ΞΏΞΈΞµΟƒΞ―Ξ± ΞµΞ―Ξ½Ξ±ΞΉ ΞΌΞ±ΞΊΟΞΉΞ¬ Ξ±Ο€Ο ΞΈΞ¬Ξ»Ξ±ΟƒΟƒΞ±, Ξ΄ΞΏΞΊΞ―ΞΌΞ±ΟƒΞµ ΞΊΞ±Ο€ΟΟ„Ξ· Ο€Ξ±ΟΞ±Ξ»ΞΉΞ±ΞΊΞ®.';
+        _errorMessage = 'Δεν βρέθηκαν δεδομένα θαλάσσης. Αν η τοποθεσία είναι μακριά από θάλασσα, δοκίμασε κάποια παραλιακή.';
       }
     });
   }
@@ -51,25 +57,23 @@ class _BeachScreenState extends State<BeachScreen> {
   Future<void> _getAiAnalysis(BeachData data) async {
     setState(() { _aiLoading = true; });
 
-    // Try with AI first
     final provider = await _storage.read(key: 'ai_provider');
     final apiKey = await _storage.read(key: '${provider ?? 'gemini'}_api_key');
 
     if (apiKey != null && apiKey.isNotEmpty) {
       try {
-        final context = 'Ξ Ξ±ΟΞ±Ξ»Ξ―Ξ±: ${data.locationName}\n'
-          'ΞΟΞΌΞ±: ${data.waveHeight.toStringAsFixed(1)}m (${data.waveCondition})\n'
-          'Ξ†Ξ½ΞµΞΌΞΏΟ‚: ${data.windSpeed.toStringAsFixed(0)} km/h ${data.waveDirectionText}\n'
-          'ΞΞµΟΞΌΞΏΞΊΟΞ±ΟƒΞ―Ξ± Ξ½ΞµΟΞΏΟ: ${data.seaTemperature.toStringAsFixed(1)}Β°C\n'
-          'Ξ ΞµΟΞ―ΞΏΞ΄ΞΏΟ‚ ΞΊΟΞΌΞ±Ο„ΞΏΟ‚: ${data.wavePeriod.toStringAsFixed(1)}s';
-        final question = 'Ξ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞµ Ο„ΞΉΟ‚ ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚ Ξ³ΞΉΞ± ΞΊΞΏΞ»ΟΞΌΟ€ΞΉ, ΟƒΞµΟΟ†, ΞΊΞ±Ο„Ξ¬Ξ΄Ο…ΟƒΞ· ΞΊΞ±ΞΉ ΞµΞ½ΞµΟΞ³ΞµΞ―ΞµΟ‚ ΞΌΞµ Ο€Ξ±ΞΉΞ΄ΞΉΞ¬. Ξ£ΟΞ½Ο„ΞΏΞΌΞ±.';
+        final context = 'Παραλία: ${data.locationName}\n'
+          'Κύμα: ${data.waveHeight.toStringAsFixed(1)}m (${data.waveCondition})\n'
+          'Άνεμος: ${data.windSpeed.toStringAsFixed(0)} km/h ${data.waveDirectionText}\n'
+          'Θερμοκρασία νερού: ${data.seaTemperature.toStringAsFixed(1)}°C\n'
+          'Περίοδος κύματος: ${data.wavePeriod.toStringAsFixed(1)}s';
+        const question = 'Ανάλυσε τις συνθήκες για κολύμπι, σερφ, κατάδυση και δραστηριότητες με παιδιά. Σύντομα.';
         final response = await _aiService.ask(context, question);
         setState(() { _aiAnalysis = response; _aiLoading = false; });
         return;
       } catch (_) {}
     }
 
-    // Fallback: rule-based
     setState(() {
       _aiAnalysis = _buildRuleBasedAnalysis(data);
       _aiLoading = false;
@@ -78,23 +82,37 @@ class _BeachScreenState extends State<BeachScreen> {
 
   String _buildRuleBasedAnalysis(BeachData data) {
     final parts = <String>[];
+
     switch (data.swimRating) {
-      case 'good': parts.add('β… ΞΞΏΞ»ΟΞΌΟ€ΞΉ: ΞΞ±Ο„Ξ¬Ξ»Ξ»Ξ·Ξ»ΞµΟ‚ ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚'); break;
-      case 'warning': parts.add('β  ΞΞΏΞ»ΟΞΌΟ€ΞΉ: Ξ ΟΞΏΟƒΞΏΟ‡Ξ® Ξ»ΟΞ³Ο‰ ΞΊΟ…ΞΌΞ¬Ο„Ο‰Ξ½'); break;
-      default: parts.add('β ΞΞΏΞ»ΟΞΌΟ€ΞΉ: Ξ‘ΞΊΞ±Ο„Ξ¬Ξ»Ξ»Ξ·Ξ»ΞµΟ‚ ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚');
+      case 'good':
+        parts.add('✅ Κολύμπι: Κατάλληλες συνθήκες');
+        break;
+      case 'warning':
+        parts.add('⚠ Κολύμπι: Προσοχή λόγω κυμάτων');
+        break;
+      default:
+        parts.add('❌ Κολύμπι: Ακατάλληλες συνθήκες');
     }
+
     switch (data.surfRating) {
-      case 'good': parts.add('π„ Ξ£ΞµΟΟ†: ΞΞ±Ο„Ξ¬Ξ»Ξ»Ξ·Ξ»ΞµΟ‚ ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚'); break;
-      case 'ok': parts.add('π„ Ξ£ΞµΟΟ†: ΞΞ­Ο„ΟΞΉΞµΟ‚ ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚'); break;
-      default: parts.add('π„ Ξ£ΞµΟΟ†: Ξ‘ΞΊΞ±Ο„Ξ¬Ξ»Ξ»Ξ·Ξ»ΞµΟ‚ ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚');
+      case 'good':
+        parts.add('🏄 Σερφ: Κατάλληλες συνθήκες');
+        break;
+      case 'ok':
+        parts.add('🏄 Σερφ: Μέτριες συνθήκες');
+        break;
+      default:
+        parts.add('🏄 Σερφ: Ακατάλληλες συνθήκες');
     }
+
     if (data.divingRating == 'good') {
-      parts.add('π¤Ώ ΞΞ±Ο„Ξ¬Ξ΄Ο…ΟƒΞ·: ΞΞ±Ξ»Ξ­Ο‚ ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚');
+      parts.add('🤿 Κατάδυση: Καλές συνθήκες');
     } else {
-      parts.add('π¤Ώ ΞΞ±Ο„Ξ¬Ξ΄Ο…ΟƒΞ·: Ξ‘ΞΊΞ±Ο„Ξ¬Ξ»Ξ»Ξ·Ξ»ΞµΟ‚ ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚');
+      parts.add('🤿 Κατάδυση: Ακατάλληλες συνθήκες');
     }
-    parts.add('β  Ξ•Ξ½Ξ΄ΞµΞΉΞΊΟ„ΞΉΞΊΞ® Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ·. Ξ£Ο…ΞΌΞ²ΞΏΟ…Ξ»ΞµΟ…Ο„ΞµΞ―Ο„Ξµ Ο„ΞΉΟ‚ Ξ±ΟΞΌΟΞ΄ΞΉΞµΟ‚ Ξ±ΟΟ‡Ξ­Ο‚.');
-    return parts.join('\n');;
+
+    parts.add('\n⚠ Ενδεικτική ανάλυση. Συμβουλευτείτε τις αρμόδιες αρχές.');
+    return parts.join('\n');
   }
 
   @override
@@ -112,12 +130,12 @@ class _BeachScreenState extends State<BeachScreen> {
             ),
           ),
         ),
-        title: const Text('\ud83c\udfd6οΈ Ξ Ξ±ΟΞ±Ξ»Ξ―ΞµΟ‚', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('🏖️ Παραλίες',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         elevation: 0,
       ),
       body: Column(
         children: [
-          // Search bar
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -134,7 +152,7 @@ class _BeachScreenState extends State<BeachScreen> {
                     controller: _searchController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: '\ud83d\udd0d Ξ‘Ξ½Ξ±Ξ¶Ξ®Ο„Ξ·ΟƒΞµ Ο€Ξ±ΟΞ±Ξ»Ξ―Ξ± (Ο€.Ο‡. Ξ‘Ξ³Ξ―Ξ± Ξ†Ξ½Ξ½Ξ± Ξ•ΟΞ²ΞΏΞΉΞ±)',
+                      hintText: '🔍 Αναζήτησε παραλία (π.χ. Αγία Άννα Εύβοια)',
                       hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                       filled: true,
                       fillColor: Colors.white.withValues(alpha: 0.15),
@@ -159,15 +177,15 @@ class _BeachScreenState extends State<BeachScreen> {
               ],
             ),
           ),
-
-          // Content
           Expanded(
             child: _isLoading
               ? const Center(child: CircularProgressIndicator(color: Color(0xFF00A8CC)))
               : _errorMessage != null
                 ? Center(child: Padding(
                     padding: const EdgeInsets.all(24),
-                    child: Text(_errorMessage!, style: const TextStyle(color: Colors.white70), textAlign: TextAlign.center),
+                    child: Text(_errorMessage!,
+                      style: const TextStyle(color: Colors.white70),
+                      textAlign: TextAlign.center),
                   ))
                 : _beachData == null
                   ? _buildEmptyState()
@@ -183,40 +201,34 @@ class _BeachScreenState extends State<BeachScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('\ud83c\udfd6οΈ', style: TextStyle(fontSize: 64)),
+          const Text('🏖️', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 16),
-          const Text('Ξ‘Ξ½Ξ±Ξ¶Ξ®Ο„Ξ·ΟƒΞµ ΞΌΞΉΞ± Ο€Ξ±ΟΞ±Ξ»Ξ―Ξ±',
+          const Text('Αναζήτησε μια παραλία',
             style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('Ο€.Ο‡. "Ξ‘Ξ³Ξ―Ξ± Ξ†Ξ½Ξ½Ξ± Ξ•ΟΞ²ΞΏΞΉΞ±" Ξ® "ΞΞ±Ξ»Ξ±ΞΌΞ―Ο„ΟƒΞΉ Ξ§Ξ±Ξ»ΞΊΞΉΞ΄ΞΉΞΊΞ®"',
+          Text('π.χ. "Αγία Άννα Εύβοια" ή "Καλαμίτσι Χαλκιδική"',
             style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 14)),
           const SizedBox(height: 24),
-          // Quick suggestions
           Wrap(
             spacing: 8,
             runSpacing: 8,
             alignment: WrapAlignment.center,
-            children: [
-              'Ξ‘Ξ³Ξ―Ξ± Ξ†Ξ½Ξ½Ξ±',
-              'ΞΞ±Ξ»Ξ±ΞΌΞ―Ο„ΟƒΞΉ',
-              'Ξ›ΞΏΟ…Ο„ΟΞ¬ΞΊΞΉ',
-              'Ξ΅ΟΞ΄ΞΏΟ‚',
-              'ΞΟΞΊΞΏΞ½ΞΏΟ‚',
-            ].map((place) => GestureDetector(
-              onTap: () {
-                _searchController.text = place;
-                _searchBeach(place);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF006994).withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF00A8CC).withValues(alpha: 0.5)),
+            children: ['Αγία Άννα', 'Καλαμίτσι', 'Λουτράκι', 'Ρόδος', 'Μύκονος']
+              .map((place) => GestureDetector(
+                onTap: () {
+                  _searchController.text = place;
+                  _searchBeach(place);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF006994).withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFF00A8CC).withValues(alpha: 0.5)),
+                  ),
+                  child: Text(place, style: const TextStyle(color: Colors.white, fontSize: 13)),
                 ),
-                child: Text(place, style: const TextStyle(color: Colors.white, fontSize: 13)),
-              ),
-            )).toList(),
+              )).toList(),
           ),
         ],
       ),
@@ -230,20 +242,18 @@ class _BeachScreenState extends State<BeachScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Location header
           Row(
             children: [
               const Icon(Icons.location_on, color: Color(0xFF00A8CC), size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(d.locationName,
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(
+                    color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
           const SizedBox(height: 16),
-
-          // Main wave card
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -260,10 +270,10 @@ class _BeachScreenState extends State<BeachScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _waveInfoItem('\ud83c\udf0a', 'ΞΟΞΌΞ±', '${d.waveHeight.toStringAsFixed(1)}m'),
-                    _waveInfoItem('\ud83c\udf21οΈ', 'ΞΞµΟΟ', '${d.seaTemperature.toStringAsFixed(1)}Β°C'),
-                    _waveInfoItem('\ud83d\udca8', 'Ξ†Ξ½ΞµΞΌΞΏΟ‚', '${d.windSpeed.toStringAsFixed(0)}km/h'),
-                    _waveInfoItem('β±', 'Ξ ΞµΟΞ―ΞΏΞ΄ΞΏΟ‚', '${d.wavePeriod.toStringAsFixed(0)}s'),
+                    _waveInfoItem('🌊', 'Κύμα', '${d.waveHeight.toStringAsFixed(1)}m'),
+                    _waveInfoItem('🌡️', 'Νερό', '${d.seaTemperature.toStringAsFixed(1)}°C'),
+                    _waveInfoItem('💨', 'Άνεμος', '${d.windSpeed.toStringAsFixed(0)}km/h'),
+                    _waveInfoItem('⏱', 'Περίοδος', '${d.wavePeriod.toStringAsFixed(0)}s'),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -280,20 +290,16 @@ class _BeachScreenState extends State<BeachScreen> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Activity ratings
           Row(
             children: [
-              Expanded(child: _activityCard('\ud83c\udfca', 'ΞΞΏΞ»ΟΞΌΟ€ΞΉ', d.swimRating)),
+              Expanded(child: _activityCard('🏊', 'Κολύμπι', d.swimRating)),
               const SizedBox(width: 8),
-              Expanded(child: _activityCard('\ud83c\udfc4', 'Ξ£ΞµΟΟ†', d.surfRating)),
+              Expanded(child: _activityCard('🏄', 'Σερφ', d.surfRating)),
               const SizedBox(width: 8),
-              Expanded(child: _activityCard('\ud83e\udd3f', 'ΞΞ±Ο„Ξ¬Ξ΄Ο…ΟƒΞ·', d.divingRating)),
+              Expanded(child: _activityCard('🤿', 'Κατάδυση', d.divingRating)),
             ],
           ),
           const SizedBox(height: 16),
-
-          // AI Analysis
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -307,16 +313,21 @@ class _BeachScreenState extends State<BeachScreen> {
               children: [
                 const Row(
                   children: [
-                    Text('\ud83e\udd16', style: TextStyle(fontSize: 18)),
+                    Text('🤖', style: TextStyle(fontSize: 18)),
                     SizedBox(width: 8),
-                    Text('Ξ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞ·',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text('Ανάλυση',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16)),
                   ],
                 ),
                 const SizedBox(height: 12),
                 _aiLoading
-                  ? const Center(child: CircularProgressIndicator(color: Color(0xFF00A8CC), strokeWidth: 2))
-                  : Text(_aiAnalysis ?? '', style: const TextStyle(color: Colors.white70, height: 1.5)),
+                  ? const Center(child: CircularProgressIndicator(
+                      color: Color(0xFF00A8CC), strokeWidth: 2))
+                  : Text(_aiAnalysis ?? '',
+                      style: const TextStyle(color: Colors.white70, height: 1.5)),
               ],
             ),
           ),
@@ -330,8 +341,10 @@ class _BeachScreenState extends State<BeachScreen> {
       children: [
         Text(emoji, style: const TextStyle(fontSize: 24)),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-        Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 11)),
+        Text(value,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(label,
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 11)),
       ],
     );
   }
@@ -340,9 +353,17 @@ class _BeachScreenState extends State<BeachScreen> {
     Color color;
     String text;
     switch (rating) {
-      case 'good': color = const Color(0xFF2ECC71); text = 'ΞΞ±Ξ»Ο'; break;
-      case 'ok': color = const Color(0xFFF39C12); text = 'ΞΞ­Ο„ΟΞΉΞΏ'; break;
-      default: color = const Color(0xFFE74C3C); text = 'ΞΞ±ΞΊΟ';
+      case 'good':
+        color = const Color(0xFF2ECC71);
+        text = 'Καλό';
+        break;
+      case 'ok':
+        color = const Color(0xFFF39C12);
+        text = 'Μέτριο';
+        break;
+      default:
+        color = const Color(0xFFE74C3C);
+        text = 'Κακό';
     }
     return Container(
       padding: const EdgeInsets.all(12),
