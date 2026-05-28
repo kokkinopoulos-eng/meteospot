@@ -34,7 +34,6 @@ class _MainNavigationState extends State<MainNavigation> {
           _weatherData != null
               ? ChatScreen(weatherData: _weatherData!)
               : const _NoWeatherPlaceholder(),
-          const SettingsScreen(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -44,6 +43,8 @@ class _MainNavigationState extends State<MainNavigation> {
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.white54,
         type: BottomNavigationBarType.fixed,
+        selectedFontSize: 11,
+        unselectedFontSize: 10,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.wb_sunny_outlined),
@@ -51,24 +52,19 @@ class _MainNavigationState extends State<MainNavigation> {
             label: '\u039a\u03b1\u03b9\u03c1\u03cc\u03c2',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.nightlight_outlined),
+            icon: Icon(Icons.wb_twilight_outlined),
             activeIcon: Icon(Icons.nightlight),
             label: '\u0389\u03bb\u03b9\u03bf\u03c2/\u03a3\u03b5\u03bb\u03ae\u03bd\u03b7',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.beach_access_outlined),
             activeIcon: Icon(Icons.beach_access),
-            label: '\u03a0\u03b1\u03c1\u03b1\u03bb\u03af\u03b5\u03c2',
+            label: '\u039a\u03bf\u03bb\u03cd\u03bc\u03c0\u03b9/\u03a3\u03ba\u03b9',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             activeIcon: Icon(Icons.chat_bubble),
             label: 'AI Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: '\u03a1\u03c5\u03b8\u03bc\u03af\u03c3\u03b5\u03b9\u03c2',
           ),
         ],
       ),

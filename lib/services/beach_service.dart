@@ -5,10 +5,10 @@ class BeachData {
   final String locationName;
   final double latitude;
   final double longitude;
-  final double waveHeight;
+  final double waveHeight;    // meters (beach) or cm (ski = snow depth)
   final double waveDirection;
-  final double wavePeriod;
-  final double seaTemperature;
+  final double wavePeriod;    // seconds (beach) or km visibility (ski)
+  final double seaTemperature; // water temp (beach) or air temp (ski)
   final double windSpeed;
   final double windDirection;
   final DateTime time;
@@ -27,12 +27,20 @@ class BeachData {
   });
 
   String get waveCondition {
-    if (waveHeight < 0.3) return '\u0391\u03c0\u03cc\u03bb\u03c5\u03c4\u03b7 \u03b7\u03c1\u03b5\u03bc\u03af\u03b1';
-    if (waveHeight < 0.5) return '\u0397\u03c1\u03b5\u03bc\u03af\u03b1';
-    if (waveHeight < 1.0) return '\u039c\u03ad\u03c4\u03c1\u03b9\u03b1 \u03ba\u03cd\u03bc\u03b1\u03c4\u03b1';
-    if (waveHeight < 1.5) return '\u039a\u03cd\u03bc\u03b1\u03c4\u03b1';
-    if (waveHeight < 2.5) return '\u0399\u03c3\u03c7\u03c5\u03c1\u03ac \u03ba\u03cd\u03bc\u03b1\u03c4\u03b1';
-    return '\u03a0\u03bf\u03bb\u03cd \u03b9\u03c3\u03c7\u03c5\u03c1\u03ac \u03ba\u03cd\u03bc\u03b1\u03c4\u03b1';
+    if (waveHeight < 0.3) return 'Απόλυτη ηρεμία';
+    if (waveHeight < 0.5) return 'Ηρεμία';
+    if (waveHeight < 1.0) return 'Μέτρια κύματα';
+    if (waveHeight < 1.5) return 'Κύματα';
+    if (waveHeight < 2.5) return 'Ισχυρά κύματα';
+    return 'Πολύ ισχυρά κύματα';
+  }
+
+  String get skiCondition {
+    if (waveHeight >= 100) return 'Άριστες συνθήκες';
+    if (waveHeight >= 50) return 'Καλές συνθήκες';
+    if (waveHeight >= 20) return 'Μέτριες συνθήκες';
+    if (waveHeight >= 5) return 'Λίγο χιόνι';
+    return 'Χωρίς χιόνι';
   }
 
   String get swimRating {
@@ -53,14 +61,13 @@ class BeachData {
   }
 
   String get waveDirectionText {
-    const directions = ['\u0392', '\u0392\u0391', '\u0391', '\u0391\u0394', '\u0394', '\u039d\u0394', '\u039d', '\u039d\u0394'];
+    const directions = ['Β', 'ΒΑ', 'Α', 'ΝΑ', 'Ν', 'ΝΔ', 'Δ', 'ΒΔ'];
     final index = ((waveDirection + 22.5) / 45).floor() % 8;
     return directions[index];
   }
 }
 
 class BeachService {
-  // Geocoding: find coordinates from place name
   static Future<Map<String, dynamic>?> geocodePlace(String placeName) async {
     try {
       final uri = Uri.parse(
@@ -75,8 +82,6 @@ class BeachService {
             'name': result['name'] ?? placeName,
             'latitude': result['latitude'],
             'longitude': result['longitude'],
-            'country': result['country'] ?? '',
-            'admin1': result['admin1'] ?? '',
           };
         }
       }
@@ -84,17 +89,13 @@ class BeachService {
     return null;
   }
 
-  // Get marine + weather data for coordinates
   static Future<BeachData?> getBeachData(String locationName, double lat, double lon) async {
     try {
-      // Marine API
       final marineUri = Uri.parse(
         'https://marine-api.open-meteo.com/v1/marine?latitude=$lat&longitude=$lon'
         '&hourly=wave_height,wave_direction,wave_period,sea_surface_temperature'
         '&timezone=auto&forecast_days=1'
       );
-
-      // Weather API for wind
       final weatherUri = Uri.parse(
         'https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon'
         '&hourly=wind_speed_10m,wind_direction_10m'
@@ -109,15 +110,10 @@ class BeachService {
       if (results[0].statusCode == 200 && results[1].statusCode == 200) {
         final marineData = jsonDecode(results[0].body);
         final weatherData = jsonDecode(results[1].body);
-
-        // Get current hour index
-        final now = DateTime.now();
-        final hour = now.hour;
-
+        final hour = DateTime.now().hour;
         final hourly = marineData['hourly'];
         final weatherHourly = weatherData['hourly'];
 
-        // Safe value extraction
         double getVal(dynamic list, int idx, double fallback) {
           if (list == null || idx >= list.length || list[idx] == null) return fallback;
           return (list[idx] as num).toDouble();
@@ -133,10 +129,76 @@ class BeachService {
           seaTemperature: getVal(hourly['sea_surface_temperature'], hour, 20.0),
           windSpeed: getVal(weatherHourly['wind_speed_10m'], hour, 0.0),
           windDirection: getVal(weatherHourly['wind_direction_10m'], hour, 0.0),
-          time: now,
+          time: DateTime.now(),
         );
       }
     } catch (_) {}
     return null;
   }
+
+  static Future<BeachData?> getSkiData(String locationName, double lat, double lon) async {
+    try {
+      final uri = Uri.parse(
+        'https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon'
+        '&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,snow_depth,visibility'
+        '&timezone=auto&forecast_days=1'
+      );
+
+      final response = await http.get(uri).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final hour = DateTime.now().hour;
+        final hourly = data['hourly'];
+
+        double getVal(dynamic list, int idx, double fallback) {
+          if (list == null || idx >= list.length || list[idx] == null) return fallback;
+          return (list[idx] as num).toDouble();
+        }
+
+        final snowDepthM = getVal(hourly['snow_depth'], hour, 0.0);
+        final visibilityM = getVal(hourly['visibility'], hour, 10000.0);
+
+        return BeachData(
+          locationName: locationName,
+          latitude: lat,
+          longitude: lon,
+          waveHeight: snowDepthM * 100,    // cm
+          waveDirection: getVal(hourly['wind_direction_10m'], hour, 0.0),
+          wavePeriod: visibilityM / 1000,   // km
+          seaTemperature: getVal(hourly['temperature_2m'], hour, 0.0),
+          windSpeed: getVal(hourly['wind_speed_10m'], hour, 0.0),
+          windDirection: getVal(hourly['wind_direction_10m'], hour, 0.0),
+          time: DateTime.now(),
+        );
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static Future<String?> reverseGeocode(double lat, double lon) async {
+    try {
+      final uri = Uri.parse(
+        'https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lon&format=json&accept-language=el'
+      );
+      final response = await http.get(uri, headers: {
+        'User-Agent': 'MetAIoSpot/1.0 (gr.webdevelopment.metaiospot)'
+      }).timeout(const Duration(seconds: 8));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final address = data['address'];
+        if (address != null) {
+          final parts = <String>[];
+          if (address['village'] != null) parts.add(address['village']);
+          else if (address['town'] != null) parts.add(address['town']);
+          else if (address['city'] != null) parts.add(address['city']);
+          if (address['county'] != null) parts.add(address['county']);
+          else if (address['state'] != null) parts.add(address['state']);
+          if (parts.isNotEmpty) return parts.join(', ');
+          return data['display_name']?.toString().split(',').take(2).join(',');
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
 }

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'settings_screen.dart' as settings_screen;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -239,6 +240,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: const Icon(Icons.refresh, color: Colors.white),
                 onPressed: _loadWeather,
               ),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => settings_screen.SettingsScreen())),
+                ),
             ],
           ),
         ),
@@ -281,6 +286,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Προσπάθεια ξανά'),
               ),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => settings_screen.SettingsScreen())),
+                ),
             ],
           ),
         ),
