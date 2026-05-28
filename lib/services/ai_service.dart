@@ -98,13 +98,15 @@ class AIService {
 
   Future<String> askGemini(String apiKey, String weatherContext, String question) async {
     final response = await http.post(
-      Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey'),
+      Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'contents': [{'parts': [{'text': '$_systemPrompt\n\nΔεδομένα καιρού:\n$weatherContext\n\nΕρώτηση: $question'}]}],
         'generationConfig': {'temperature': 0.7, 'maxOutputTokens': 500}
       }),
     ).timeout(const Duration(seconds: 30));
+    print('Gemini status: ${response.statusCode}');
+    print('Gemini body: ${response.body.substring(0, response.body.length < 200 ? response.body.length : 200)}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['candidates'][0]['content']['parts'][0]['text'] as String;
@@ -121,7 +123,7 @@ class AIService {
     final bytes = await photo.readAsBytes();
     final base64Image = base64Encode(bytes);
     final response = await http.post(
-      Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey'),
+      Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'contents': [{
@@ -133,6 +135,8 @@ class AIService {
         'generationConfig': {'temperature': 0.5, 'maxOutputTokens': 400}
       }),
     ).timeout(const Duration(seconds: 30));
+    print('Gemini status: ${response.statusCode}');
+    print('Gemini body: ${response.body.substring(0, response.body.length < 200 ? response.body.length : 200)}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['candidates'][0]['content']['parts'][0]['text'] as String;
@@ -164,6 +168,8 @@ class AIService {
         }],
       }),
     ).timeout(const Duration(seconds: 30));
+    print('Gemini status: ${response.statusCode}');
+    print('Gemini body: ${response.body.substring(0, response.body.length < 200 ? response.body.length : 200)}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['content'][0]['text'] as String;
@@ -190,6 +196,8 @@ class AIService {
         }],
       }),
     ).timeout(const Duration(seconds: 30));
+    print('Gemini status: ${response.statusCode}');
+    print('Gemini body: ${response.body.substring(0, response.body.length < 200 ? response.body.length : 200)}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['choices'][0]['message']['content'] as String;
@@ -219,6 +227,8 @@ class AIService {
         'messages': [{'role': 'user', 'content': question}],
       }),
     ).timeout(const Duration(seconds: 30));
+    print('Gemini status: ${response.statusCode}');
+    print('Gemini body: ${response.body.substring(0, response.body.length < 200 ? response.body.length : 200)}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['content'][0]['text'] as String;
@@ -242,6 +252,8 @@ class AIService {
         ],
       }),
     ).timeout(const Duration(seconds: 30));
+    print('Gemini status: ${response.statusCode}');
+    print('Gemini body: ${response.body.substring(0, response.body.length < 200 ? response.body.length : 200)}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['choices'][0]['message']['content'] as String;
