@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/sun_moon_screen.dart';
 import 'screens/chat_screen.dart';
+import 'screens/beach_screen.dart';
 import 'screens/settings_screen.dart';
 import 'models/weather_data.dart';
 
@@ -29,6 +30,7 @@ class _MainNavigationState extends State<MainNavigation> {
         children: [
           HomeScreen(onWeatherLoaded: _onWeatherLoaded),
           const SunMoonScreen(),
+          const BeachScreen(),
           _weatherData != null
               ? ChatScreen(weatherData: _weatherData!)
               : const _NoWeatherPlaceholder(),
@@ -46,12 +48,17 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.wb_sunny_outlined),
             activeIcon: Icon(Icons.wb_sunny),
-            label: '\u039A\u03B1\u03B9\u03C1\u03CC\u03C2',
+            label: '\u039a\u03b1\u03b9\u03c1\u03cc\u03c2',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.nightlight_outlined),
             activeIcon: Icon(Icons.nightlight),
-            label: '\u0389\u03BB\u03B9\u03BF\u03C2/\u03A3\u03B5\u03BB\u03AE\u03BD\u03B7',
+            label: '\u0389\u03bb\u03b9\u03bf\u03c2/\u03a3\u03b5\u03bb\u03ae\u03bd\u03b7',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.paragliding_outlined),
+            activeIcon: Icon(Icons.beach_access),
+            label: '\u0394\u03c1\u03b1\u03c3\u03c4\u03b7\u03c1\u03b9\u03cc\u03c4\u03b7\u03c4\u03b5\u03c2',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
@@ -61,7 +68,7 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
             activeIcon: Icon(Icons.settings),
-            label: '\u03A1\u03C5\u03B8\u03BC\u03AF\u03C3\u03B5\u03B9\u03C2',
+            label: '\u03a1\u03c5\u03b8\u03bc\u03af\u03c3\u03b5\u03b9\u03c2',
           ),
         ],
       ),
@@ -83,7 +90,7 @@ class _NoWeatherPlaceholder extends StatelessWidget {
             Icon(Icons.cloud_off, color: Colors.white38, size: 64),
             SizedBox(height: 16),
             Text(
-              '\u03A0\u03C1\u03CE\u03C4\u03B1 \u03C6\u03CC\u03C1\u03C4\u03C9\u03C3\u03B5 \u03C4\u03BF\u03BD \u03BA\u03B1\u03B9\u03C1\u03CC',
+              '\u03a0\u03c1\u03ce\u03c4\u03b1 \u03c6\u03cc\u03c1\u03c4\u03c9\u03c3\u03b5 \u03c4\u03bf\u03bd \u03ba\u03b1\u03b9\u03c1\u03cc',
               style: TextStyle(color: Colors.white70, fontSize: 16),
             ),
           ],

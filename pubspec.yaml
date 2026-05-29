@@ -1,7 +1,7 @@
 name: meteospot
 description: Hyperlocal AI Weather App
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: '>=3.12.0 <4.0.0'
@@ -37,6 +37,8 @@ dependencies:
   cached_network_image: ^3.4.1
   flutter_native_splash: ^2.4.7
   package_info_plus: ^10.1.0
+  flutter_map: ^8.3.0
+  latlong2: ^0.9.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

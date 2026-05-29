@@ -54,54 +54,54 @@ class AIService {
   bool isWeatherRelated(String question) {
     if (question.trim().split(' ').length <= 5) return true;
     final keywords = [
-      'ΞΊΞ±ΞΉΟΟΟ‚', 'Ξ²ΟΞΏΟ‡Ξ®', 'Ξ®Ξ»ΞΉΞΏΟ‚', 'Ο‡ΞΉΟΞ½ΞΉ', 'Ξ¬Ξ½ΞµΞΌΞΏΟ‚', 'Ξ±Ξ­ΟΞ±Ο‚',
-      'ΞΈΞµΟΞΌΞΏΞΊΟΞ±ΟƒΞ―Ξ±', 'Ο…Ξ³ΟΞ±ΟƒΞ―Ξ±', 'Ο€Ξ―ΞµΟƒΞ·', 'ΟƒΟΞ½Ξ½ΞµΟ†Ξ±', 'ΞΏΞΌΞ―Ο‡Ξ»Ξ·',
-      'ΞΊΞ±Ο„Ξ±ΞΉΞ³Ξ―Ξ΄Ξ±', 'ΟΞ¬ΟΞµΞΌΞ±', 'Ο€ΞµΟΟ€Ξ¬Ο„Ξ·ΞΌΞ±', 'ΞµΞΊΞ΄ΟΞΏΞΌΞ®', 'ΞΌΟ€Ξ¬Ξ½ΞΉΞΏ',
+      'καιρός', 'βροχή', 'ήλιος', 'χιόνι', 'άνεμος', 'αέρας',
+      'θερμοκρασία', 'υγρασία', 'πίεση', 'σύννεφα', 'ομίχλη',
+      'καταιγίδα', 'ψάρεμα', 'περπάτημα', 'εκδρομή', 'μπάνιο', 'ταξίδι', 'διακοπές', 'χιονοδρομικό', 'σκι', 'snowboard', 'παραλία', 'νησί', 'ορεινός',
       'weather', 'rain', 'snow', 'wind', 'temperature', 'cloud',
-      'Ξ½Ξ± Ξ²Ξ³Ο‰', 'Ξ½Ξ± Ο€Ξ¬Ο‰', 'Ξ½Ξ± ΞΏΞ΄Ξ·Ξ³Ξ®ΟƒΟ‰', 'Ξ±ΟƒΟ†Ξ±Ξ»Ξ­Ο‚', 'ΞΊΟΟΞΏ', 'Ξ¶Ξ­ΟƒΟ„Ξ·',
-      'uv', 'ΞΏΟΞ±Ο„ΟΟ„Ξ·Ο„Ξ±', 'Ο…ΟΟΞΌΞµΟ„ΟΞΏ', 'Ο€ΟΟΞ²Ξ»ΞµΟΞ·', 'forecast',
+      'να βγω', 'να πάω', 'να οδηγήσω', 'ασφαλές', 'κρύο', 'ζέστη',
+      'uv', 'ορατότητα', 'υψόμετρο', 'πρόβλεψη', 'forecast',
       'sunny', 'cloudy',
-      'Ο€Ξ±ΟΞ±Ξ»Ξ―Ξ±', 'Ο€Ξ±ΟΞ±Ξ»Ξ―ΞµΟ‚', 'ΞΈΞ¬Ξ»Ξ±ΟƒΟƒΞ±', 'ΞΊΟΞΌΞ±', 'ΞΊΟΞΌΞ±Ο„Ξ±',
-      'ΞΊΞΏΞ»ΟΞΌΟ€ΞΉ', 'ΞΊΞΏΞ»ΟΞΌΞ²Ξ·ΟƒΞ·', 'surf', 'ΟƒΞµΟΟ†', 'ΞΉΟƒΟ„ΞΉΞΏΟ€Ξ»ΞΏΞΞ±',
-      'ΞΌΟ€ΞΏΟ†ΟΟ', 'beaufort', 'sea', 'wave', 'beach', 'marine',
-      'Ξ±ΞΊΟ„Ξ®', 'Ξ±ΞΊΟ„Ξ­Ο‚', 'Ξ»ΞΉΞΌΞ¬Ξ½ΞΉ', 'ΟƒΞΊΞ¬Ο†ΞΏΟ‚', 'Ξ²Ξ¬ΟΞΊΞ±',
-      'ΟΞ±ΟΞ¬Ο‚', 'ΞΊΞ±Ο„Ξ¬Ξ΄Ο…ΟƒΞ·', 'snorkel', 'sup', 'kitesurfing', 'storm', 'thunder', 'lightning', 'fog',
-      'Ο€Ξ±Ξ³ΞµΟ„ΟΟ‚', 'Ο€Ξ¬Ξ³ΞΏΟ‚', 'Ο‡Ξ±Ξ»Ξ¬Ξ¶ΞΉ', 'ΞΌΟ€ΟΟΞ±', 'ΞΏΞΌΟ€ΟΞ­Ξ»Ξ±', 'Ξ±Ξ½Ο„ΞΉΞ·Ξ»ΞΉΞ±ΞΊΟ',
-      'ΟƒΞ®ΞΌΞµΟΞ±', 'Ξ±ΟΟΞΉΞΏ', 'Ξ±Ο€ΟΞ³ΞµΟ…ΞΌΞ±', 'Ο€ΟΟ‰Ξ―', 'Ξ²ΟΞ¬Ξ΄Ο…', 'ΞµΞ²Ξ΄ΞΏΞΌΞ¬Ξ΄Ξ±',
+      'παραλία', 'παραλίες', 'θάλασσα', 'κύμα', 'κύματα',
+      'κολύμπι', 'κολύμβηση', 'surf', 'σερφ', 'ιστιοπλοΐα',
+      'μποφόρ', 'beaufort', 'sea', 'wave', 'beach', 'marine',
+      'ακτή', 'ακτές', 'λιμάνι', 'σκάφος', 'βάρκα',
+      'ψαράς', 'κατάδυση', 'snorkel', 'sup', 'kitesurfing', 'storm', 'thunder', 'lightning', 'fog',
+      'παγετός', 'πάγος', 'χαλάζι', 'μπόρα', 'ομπρέλα', 'αντιηλιακό',
+      'σήμερα', 'αύριο', 'απόγευμα', 'πρωί', 'βράδυ', 'εβδομάδα',
       'today', 'tomorrow', 'morning', 'evening', 'weekend',
-      'ΟΟΞ±', 'Ο‰ΟΞ±', 'Ξ±ΟΞ³ΟΟ„ΞµΟΞ±', 'Ο„ΟΟΞ±', 'Ο„Ο‰ΟΞ±',
-      'ΞΈΞ±', 'Ο€ΟΟ„Ξµ', 'Ο€ΞΏΟ„Ξµ', 'ΞΌΟ€ΞΏΟΟ', 'ΞΌΟ€ΞΏΟΞµΞ―Ο‚',
-      'Ξ²Ξ³Ο‰', 'Ξ²Ξ³Ξ±Ξ―Ξ½Ο‰', 'ΞµΞΎΟ‰', 'Ξ­ΞΎΟ‰', 'Ξ΄ΟΞ±ΟƒΟ„Ξ·ΟΞΉΟΟ„Ξ·Ο„Ξ±',
-      'hour', 'later', 'soon', 'next', 'ΞµΟ€ΟΞΌΞµΞ½Ξ·', 'ΞµΟ€ΞΏΞΌΞµΞ½Ξ·',
-      'ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚', 'ΞΊΞ±Ο„Ξ¬ΟƒΟ„Ξ±ΟƒΞ·', 'Ο€ΟΟΞ²Ξ»ΞµΟΞ·',
-      'ΞΎΞµΞΊΞΉΞ½Ξ®ΟƒΟ‰', 'Ο†ΟΞ³Ο‰', 'Ο€Ξ¬Ο‰', 'Ξ²ΟΞ»Ο„Ξ±', 'Ξ²ΞΏΞ»Ο„Ξ±',
-      'ΟΞΏΟΟ‡Ξ±', 'jacket', 'coat', 'Ξ±ΟƒΟ†Ξ±Ξ»Ξ®Ο‚', 'ΞΊΞ―Ξ½Ξ΄Ο…Ξ½ΞΏΟ‚',
-      'ΞΌΟ€ΞΏΟΞµΞ―', 'Ο€ΞΉΞΈΞ±Ξ½Ο', 'Ξ΄Ο…Ξ½Ξ±Ο„Ο', 'ΞΏΟ…ΟΞ±Ξ½ΟΟ‚', 'ΞΏΟ…ΟΞ±Ξ½ΞΏΟ‚',
+      'ώρα', 'ωρα', 'αργότερα', 'τώρα', 'τωρα',
+      'θα', 'πότε', 'ποτε', 'μπορώ', 'μπορείς',
+      'βγω', 'βγαίνω', 'εξω', 'έξω', 'δραστηριότητα',
+      'hour', 'later', 'soon', 'next', 'επόμενη', 'επομενη',
+      'συνθήκες', 'κατάσταση', 'πρόβλεψη',
+      'ξεκινήσω', 'φύγω', 'πάω', 'βόλτα', 'βολτα',
+      'ρούχα', 'jacket', 'coat', 'ασφαλής', 'κίνδυνος',
+      'μπορεί', 'πιθανό', 'δυνατό', 'ουρανός', 'ουρανος',
     ];
     return keywords.any((k) => question.toLowerCase().contains(k));
   }
 
   static const String _systemPrompt =
-    'Ξ•Ξ―ΟƒΞ±ΞΉ Ξ­ΞΌΟ€ΞµΞΉΟΞΏΟ‚ ΞΌΞµΟ„ΞµΟ‰ΟΞΏΞ»ΟΞ³ΞΏΟ‚ Ο€ΞΏΟ… Ξ±Ξ½Ξ±Ξ»ΟΞµΞΉ Ο„ΞΏΟ€ΞΉΞΊΞ­Ο‚ ΞΊΞ±ΞΉΟΞΉΞΊΞ­Ο‚ ΟƒΟ…Ξ½ΞΈΞ®ΞΊΞµΟ‚ ΞΊΞ±ΞΉ ΞΈΞ±Ξ»Ξ¬ΟƒΟƒΞΉΞµΟ‚ Ξ΄ΟΞ±ΟƒΟ„Ξ·ΟΞΉΟΟ„Ξ·Ο„ΞµΟ‚. '
-    'Ξ‘Ο€Ξ±Ξ½Ο„Ξ¬Ο‚ ΞΞΞΞ ΟƒΞµ ΞµΟΟ‰Ο„Ξ®ΟƒΞµΞΉΟ‚ ΟƒΟ‡ΞµΟ„ΞΉΞΊΞ­Ο‚ ΞΌΞµ ΞΊΞ±ΞΉΟΟ, ΞΈΞ¬Ξ»Ξ±ΟƒΟƒΞ±, ΞΊΟΞΌΞ±Ο„Ξ±, Ο€Ξ±ΟΞ±Ξ»Ξ―ΞµΟ‚ ΞΊΞ±ΞΉ Ξ΄ΟΞ±ΟƒΟ„Ξ·ΟΞΉΟΟ„Ξ·Ο„ΞµΟ‚ Ο€ΞΏΟ… ΞµΟ€Ξ·ΟΞµΞ¬Ξ¶ΞΏΞ½Ο„Ξ±ΞΉ Ξ±Ο€Ο Ξ±Ο…Ο„Ξ¬. '
-    'Ξ‘Ξ½ Ξ· ΞµΟΟΟ„Ξ·ΟƒΞ· ΞµΞ―Ξ½Ξ±ΞΉ Ξ‘Ξ£Ξ§Ξ•Ξ¤Ξ—, Ξ±Ο€Ξ¬Ξ½Ο„Ξ±: "π¤οΈ ΞΟ€ΞΏΟΟ Ξ½Ξ± Ξ±Ο€Ξ±Ξ½Ο„Ξ®ΟƒΟ‰ ΞΌΟΞ½ΞΏ ΟƒΞµ ΞµΟΟ‰Ο„Ξ®ΟƒΞµΞΉΟ‚ ΟƒΟ‡ΞµΟ„ΞΉΞΊΞ­Ο‚ ΞΌΞµ Ο„ΞΏΞ½ ΞΊΞ±ΞΉΟΟ!" '
-    'Ξ”Ξ―Ξ½ΞµΞΉΟ‚ ΟƒΟΞ½Ο„ΞΏΞΌΞµΟ‚, Ο‡ΟΞ®ΟƒΞΉΞΌΞµΟ‚ Ξ±Ο€Ξ±Ξ½Ο„Ξ®ΟƒΞµΞΉΟ‚ ΟƒΟ„Ξ± Ξ•Ξ»Ξ»Ξ·Ξ½ΞΉΞΊΞ¬. '
-    'Ξ Ξ¬Ξ½Ο„Ξ± Ο€ΟΞΏΟƒΞΈΞ­Ο„ΞµΞΉΟ‚: "β οΈ Ξ“ΞΉΞ± Ξ΄ΟΞ±ΟƒΟ„Ξ·ΟΞΉΟΟ„Ξ·Ο„ΞµΟ‚ ΞΌΞµ ΞΊΞ―Ξ½Ξ΄Ο…Ξ½ΞΏ, ΟƒΟ…ΞΌΞ²ΞΏΟ…Ξ»ΞµΟ…Ο„ΞµΞ―Ο„Ξµ Ξ•ΞΞ¥."';
+    'Είσαι έμπειρος μετεωρολόγος και σύμβουλος υπαίθριων δραστηριοτήτων. Αναλύεις τοπικές καιρικές συνθήκες για παραλίες, χιονοδρομικά, εκδρομές, ταξίδια και δραστηριότητες. '
+    'Απαντάς ΜΟΝΟ σε ερωτήσεις σχετικές με καιρό, θάλασσα, κύματα, παραλίες και δραστηριότητες που επηρεάζονται από αυτά. '
+    'Αν η ερώτηση είναι ΑΣΧΕΤΗ, απάντα: "🌤️ Μπορώ να απαντήσω μόνο σε ερωτήσεις σχετικές με τον καιρό!" '
+    'Δίνεις σύντομες, χρήσιμες απαντήσεις στα Ελληνικά. '
+    'Πάντα προσθέτεις: "⚠️ Για δραστηριότητες με κίνδυνο, συμβουλευτείτε ΕΜΥ."';
 
   static const String _skyPhotoPrompt =
-    'Ξ•Ξ―ΟƒΞ±ΞΉ ΞΌΞµΟ„ΞµΟ‰ΟΞΏΞ»ΟΞ³ΞΏΟ‚ Ο€ΞΏΟ… Ξ±Ξ½Ξ±Ξ»ΟΞµΞΉ Ο†Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―ΞµΟ‚ ΞΏΟ…ΟΞ±Ξ½ΞΏΟ. '
-    'Ξ‘Ξ½ Ξ· Ο†Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―Ξ± Ξ”Ξ•Ξ Ξ΄ΞµΞ―Ο‡Ξ½ΞµΞΉ ΞΏΟ…ΟΞ±Ξ½Ο/ΟƒΟΞ½Ξ½ΞµΟ†Ξ±/ΞΊΞ±ΞΉΟΞΉΞΊΞ¬ Ο†Ξ±ΞΉΞ½ΟΞΌΞµΞ½Ξ±, Ξ±Ο€Ξ¬Ξ½Ο„Ξ± ΞΞΞΞ: '
-    '"π“· Ξ Ξ±ΟΞ±ΞΊΞ±Ξ»Ο Ο„ΟΞ¬Ξ²Ξ·ΞΎΞµ Ο†Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―Ξ± Ο„ΞΏΟ… ΞΏΟ…ΟΞ±Ξ½ΞΏΟ Ξ³ΞΉΞ± Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ· ΞΊΞ±ΞΉΟΞΏΟ." '
-    'Ξ‘Ξ½ ΞµΞ―Ξ½Ξ±ΞΉ ΞΏΟ…ΟΞ±Ξ½ΟΟ‚, Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞµ: Ο„ΟΟ€ΞΏΟ‚ ΟƒΟ…Ξ½Ξ½Ξ­Ο†Ο‰Ξ½, Ο€ΞΉΞΈΞ±Ξ½ΟΟ„Ξ·Ο„Ξ± Ξ²ΟΞΏΟ‡Ξ®Ο‚, ΞΏΟΞ±Ο„ΟΟ„Ξ·Ο„Ξ±, '
-    'Ξ³ΞµΞ½ΞΉΞΊΞ® ΞµΞΊΟ„Ξ―ΞΌΞ·ΟƒΞ· ΞΊΞ±ΞΉΟΞΏΟ. Ξ‘Ο€Ξ¬Ξ½Ο„Ξ± ΟƒΟ„Ξ± Ξ•Ξ»Ξ»Ξ·Ξ½ΞΉΞΊΞ¬, ΟƒΟΞ½Ο„ΞΏΞΌΞ± ΞΊΞ±ΞΉ Ο€ΞµΟΞΉΞµΞΊΟ„ΞΉΞΊΞ¬. '
-    'Ξ ΟΟΟƒΞΈΞµΟƒΞµ: "β οΈ Ξ“ΞΉΞ± Ξ±ΞΊΟΞΉΞ²Ξ® Ο€ΟΟΞ²Ξ»ΞµΟΞ·, ΟƒΟ…ΞΌΞ²ΞΏΟ…Ξ»ΞµΟ…Ο„ΞµΞ―Ο„Ξµ Ξ•ΞΞ¥."';
+    'Είσαι μετεωρολόγος που αναλύει φωτογραφίες ουρανού. '
+    'Αν η φωτογραφία ΔΕΝ δείχνει ουρανό/σύννεφα/καιρικά φαινόμενα, απάντα ΜΟΝΟ: '
+    '"📷 Παρακαλώ τράβηξε φωτογραφία του ουρανού για ανάλυση καιρού." '
+    'Αν είναι ουρανός, ανάλυσε: τύπος συννέφων, πιθανότητα βροχής, ορατότητα, '
+    'γενική εκτίμηση καιρού. Απάντα στα Ελληνικά, σύντομα και περιεκτικά. '
+    'Πρόσθεσε: "⚠️ Για ακριβή πρόβλεψη, συμβουλευτείτε ΕΜΥ."';
 
   Future<String> askGemini(String apiKey, String weatherContext, String question) async {
     final response = await http.post(
       Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'contents': [{'parts': [{'text': '$_systemPrompt\n\nΞ”ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ± ΞΊΞ±ΞΉΟΞΏΟ:\n$weatherContext\n\nΞ•ΟΟΟ„Ξ·ΟƒΞ·: $question'}]}],
+        'contents': [{'parts': [{'text': '$_systemPrompt\n\nΔεδομένα καιρού:\n$weatherContext\n\nΕρώτηση: $question'}]}],
         'generationConfig': {'temperature': 0.7, 'maxOutputTokens': 500}
       }),
     ).timeout(const Duration(seconds: 30));
@@ -109,11 +109,11 @@ class AIService {
       final data = jsonDecode(response.body);
       return data['candidates'][0]['content']['parts'][0]['text'] as String;
     } else if (response.statusCode == 400) {
-      throw Exception('Ξ›Ξ¬ΞΈΞΏΟ‚ API key.');
+      throw Exception('Λάθος API key.');
     } else if (response.statusCode == 429) {
         throw Exception('\u0394\u03C9\u03C1\u03B5\u03AC\u03BD \u03CC\u03C1\u03B9\u03BF Gemini. \u0386\u03BB\u03BB\u03B1\u03BE\u03B5 provider \u03AE \u03B4\u03BF\u03BA\u03AF\u03BC\u03B1\u03C3\u03B5 \u03B1\u03C1\u03B3\u03CC\u03C4\u03B5\u03C1\u03B1.');
     } else {
-      throw Exception('Ξ£Ο†Ξ¬Ξ»ΞΌΞ± Gemini: ${response.statusCode}');
+      throw Exception('Σφάλμα Gemini: ${response.statusCode}');
     }
   }
 
@@ -126,7 +126,7 @@ class AIService {
       body: jsonEncode({
         'contents': [{
           'parts': [
-            {'text': '$_skyPhotoPrompt\n\nΞ”ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ± ΞΊΞ±ΞΉΟΞΏΟ:\n$weatherContext'},
+            {'text': '$_skyPhotoPrompt\n\nΔεδομένα καιρού:\n$weatherContext'},
             {'inline_data': {'mime_type': 'image/jpeg', 'data': base64Image}}
           ]
         }],
@@ -137,7 +137,7 @@ class AIService {
       final data = jsonDecode(response.body);
       return data['candidates'][0]['content']['parts'][0]['text'] as String;
     } else {
-      throw Exception('Ξ£Ο†Ξ¬Ξ»ΞΌΞ± Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ·Ο‚ Ο†Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―Ξ±Ο‚: ${response.statusCode}');
+      throw Exception('Σφάλμα ανάλυσης φωτογραφίας: ${response.statusCode}');
     }
   }
 
@@ -154,12 +154,12 @@ class AIService {
       body: jsonEncode({
         'model': 'claude-haiku-4-5',
         'max_tokens': 400,
-        'system': '$_skyPhotoPrompt\n\nΞ”ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ±:\n$weatherContext',
+        'system': '$_skyPhotoPrompt\n\nΔεδομένα:\n$weatherContext',
         'messages': [{
           'role': 'user',
           'content': [
             {'type': 'image', 'source': {'type': 'base64', 'media_type': 'image/jpeg', 'data': base64Image}},
-            {'type': 'text', 'text': 'Ξ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞµ Ο„ΞΏΞ½ ΞΏΟ…ΟΞ±Ξ½Ο ΟƒΟ„Ξ· Ο†Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―Ξ±.'}
+            {'type': 'text', 'text': 'Ανάλυσε τον ουρανό στη φωτογραφία.'}
           ]
         }],
       }),
@@ -168,7 +168,7 @@ class AIService {
       final data = jsonDecode(response.body);
       return data['content'][0]['text'] as String;
     } else {
-      throw Exception('Ξ£Ο†Ξ¬Ξ»ΞΌΞ± Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ·Ο‚ Ο†Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―Ξ±Ο‚: ${response.statusCode}');
+      throw Exception('Σφάλμα ανάλυσης φωτογραφίας: ${response.statusCode}');
     }
   }
 
@@ -184,7 +184,7 @@ class AIService {
         'messages': [{
           'role': 'user',
           'content': [
-            {'type': 'text', 'text': '$_skyPhotoPrompt\n\nΞ”ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ±:\n$weatherContext\n\nΞ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞµ Ο„ΞΏΞ½ ΞΏΟ…ΟΞ±Ξ½Ο.'},
+            {'type': 'text', 'text': '$_skyPhotoPrompt\n\nΔεδομένα:\n$weatherContext\n\nΑνάλυσε τον ουρανό.'},
             {'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,$base64Image'}}
           ]
         }],
@@ -194,7 +194,7 @@ class AIService {
       final data = jsonDecode(response.body);
       return data['choices'][0]['message']['content'] as String;
     } else {
-      throw Exception('Ξ£Ο†Ξ¬Ξ»ΞΌΞ± Ξ±Ξ½Ξ¬Ξ»Ο…ΟƒΞ·Ο‚ Ο†Ο‰Ο„ΞΏΞ³ΟΞ±Ο†Ξ―Ξ±Ο‚: ${response.statusCode}');
+      throw Exception('Σφάλμα ανάλυσης φωτογραφίας: ${response.statusCode}');
     }
   }
 
@@ -215,7 +215,7 @@ class AIService {
       body: jsonEncode({
         'model': 'claude-haiku-4-5',
         'max_tokens': 500,
-        'system': '$_systemPrompt\n\nΞ”ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ±:\n$weatherContext',
+        'system': '$_systemPrompt\n\nΔεδομένα:\n$weatherContext',
         'messages': [{'role': 'user', 'content': question}],
       }),
     ).timeout(const Duration(seconds: 30));
@@ -223,9 +223,9 @@ class AIService {
       final data = jsonDecode(response.body);
       return data['content'][0]['text'] as String;
     } else if (response.statusCode == 401) {
-      throw Exception('Ξ›Ξ¬ΞΈΞΏΟ‚ API key.');
+      throw Exception('Λάθος API key.');
     } else {
-      throw Exception('Ξ£Ο†Ξ¬Ξ»ΞΌΞ±: ${response.statusCode}');
+      throw Exception('Σφάλμα: ${response.statusCode}');
     }
   }
 
@@ -237,7 +237,7 @@ class AIService {
         'model': 'gpt-4o-mini',
         'max_tokens': 500,
         'messages': [
-          {'role': 'system', 'content': '$_systemPrompt\n\nΞ”ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ±:\n$weatherContext'},
+          {'role': 'system', 'content': '$_systemPrompt\n\nΔεδομένα:\n$weatherContext'},
           {'role': 'user', 'content': question}
         ],
       }),
@@ -246,15 +246,15 @@ class AIService {
       final data = jsonDecode(response.body);
       return data['choices'][0]['message']['content'] as String;
     } else if (response.statusCode == 401) {
-      throw Exception('Ξ›Ξ¬ΞΈΞΏΟ‚ API key.');
+      throw Exception('Λάθος API key.');
     } else {
-      throw Exception('Ξ£Ο†Ξ¬Ξ»ΞΌΞ±: ${response.statusCode}');
+      throw Exception('Σφάλμα: ${response.statusCode}');
     }
   }
 
   Future<String> ask(String weatherContext, String question) async {
     if (!isWeatherRelated(question)) {
-      return 'π¤οΈ ΞΟ€ΞΏΟΟ Ξ½Ξ± Ξ±Ο€Ξ±Ξ½Ο„Ξ®ΟƒΟ‰ ΞΌΟΞ½ΞΏ ΟƒΞµ ΞµΟΟ‰Ο„Ξ®ΟƒΞµΞΉΟ‚ ΟƒΟ‡ΞµΟ„ΞΉΞΊΞ­Ο‚ ΞΌΞµ Ο„ΞΏΞ½ ΞΊΞ±ΞΉΟΟ!';
+      return '🌤️ Μπορώ να απαντήσω μόνο σε ερωτήσεις σχετικές με τον καιρό!';
     }
     final provider = await getCurrentProvider();
     if (provider == AIProvider.none) throw Exception('no_key');
@@ -274,14 +274,14 @@ class AIService {
     required double latitude, required double longitude,
   }) {
     return '''
-π“ Ξ¤ΞΏΟ€ΞΏΞΈΞµΟƒΞ―Ξ±: $latitude, $longitude (${elevation.toInt()}m)
-π΅οΈ ΞΞµΟΞΌΞΏΞΊΟΞ±ΟƒΞ―Ξ±: ${temperature.toStringAsFixed(1)}Β°C (Ξ‘Ξ―ΟƒΞΈΞ·ΟƒΞ·: ${feelsLike.toStringAsFixed(1)}Β°C)
-π’§ Ξ¥Ξ³ΟΞ±ΟƒΞ―Ξ±: ${humidity.toInt()}%
-π¬οΈ Ξ†Ξ½ΞµΞΌΞΏΟ‚: ${windSpeed.toStringAsFixed(1)} km/h Ξ±Ο€Ο $windDirection
-π΅οΈ Ξ Ξ―ΞµΟƒΞ·: ${pressure.toStringAsFixed(0)} hPa
-β€οΈ UV Index: ${uvIndex.toStringAsFixed(1)}
-π‘οΈ ΞΟΞ±Ο„ΟΟ„Ξ·Ο„Ξ±: ${(visibility / 1000).toStringAsFixed(1)} km
-β›… Ξ£Ο…Ξ½ΞΈΞ®ΞΊΞµΟ‚: $description
+📍 Τοποθεσία: $latitude, $longitude (${elevation.toInt()}m)
+🌡️ Θερμοκρασία: ${temperature.toStringAsFixed(1)}°C (Αίσθηση: ${feelsLike.toStringAsFixed(1)}°C)
+💧 Υγρασία: ${humidity.toInt()}%
+🌬️ Άνεμος: ${windSpeed.toStringAsFixed(1)} km/h από $windDirection
+🌡️ Πίεση: ${pressure.toStringAsFixed(0)} hPa
+☀️ UV Index: ${uvIndex.toStringAsFixed(1)}
+👁️ Ορατότητα: ${(visibility / 1000).toStringAsFixed(1)} km
+⛅ Συνθήκες: $description
 ''';
   }
 }

@@ -1,0 +1,46 @@
+    }
+
+    if (snow > 20 && wind < 50) {
+      parts.add('🏂 Snowboard: Καλές συνθήκες');
+    } else {
+      parts.add('🏂 Snowboard: Ακατάλληλες συνθήκες');
+    }
+
+    if (temp < -5) {
+      parts.add('🥶 Πολύ κρύο — ζεστά ρούχα απαραίτητα');
+    } else if (temp < 0) {
+      parts.add('❄️ Παγετός — προσοχή στους δρόμους');
+    }
+
+    parts.add('\n⚠ Ενδεικτική ανάλυση. Συμβουλευτείτε τα χιονοδρομικά κέντρα.');
+    return parts.join('\n');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A1628),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: _isSkiMode
+                ? [const Color(0xFF1A237E), const Color(0xFF283593), const Color(0xFF1565C0)]
+                : [const Color(0xFF006994), const Color(0xFF00A8CC), const Color(0xFF0077B6)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+        title: Text(
+          _isSkiMode ? '🎿 Χιονοδρομικά' : '🏖️ Παραλίες',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        actions: [
+          if (_beachData != null)
+            IconButton(
+              icon: const Icon(Icons.clear, color: Colors.white),
+              tooltip: 'Καθαρισμός',
+              onPressed: _clearResults,
+            ),
+        ],

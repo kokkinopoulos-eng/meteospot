@@ -1,0 +1,31 @@
+      case 'good': parts.add('✅ Κολύμπι: Κατάλληλες συνθήκες'); break;
+      case 'warning': parts.add('⚠ Κολύμπι: Προσοχή λόγω κυμάτων'); break;
+      default: parts.add('❌ Κολύμπι: Ακατάλληλες συνθήκες');
+    }
+    switch (data.surfRating) {
+      case 'good': parts.add('🏄 Σερφ: Κατάλληλες συνθήκες'); break;
+      case 'ok': parts.add('🏄 Σερφ: Μέτριες συνθήκες'); break;
+      default: parts.add('🏄 Σερφ: Ακατάλληλες συνθήκες');
+    }
+    if (data.divingRating == 'good') {
+      parts.add('🤿 Κατάδυση: Καλές συνθήκες');
+    } else {
+      parts.add('🤿 Κατάδυση: Ακατάλληλες συνθήκες');
+    }
+    parts.add('\n⚠ Ενδεικτική ανάλυση. Συμβουλευτείτε τις αρμόδιες αρχές.');
+    return parts.join('\n');
+  }
+
+  String _buildSkiRuleAnalysis(BeachData data) {
+    final parts = <String>[];
+    final snow = data.waveHeight;
+    final wind = data.windSpeed;
+    final temp = data.seaTemperature;
+
+    if (snow > 30 && wind < 40 && temp < 2) {
+      parts.add('✅ Σκι: Εξαιρετικές συνθήκες');
+    } else if (snow > 10 && wind < 60) {
+      parts.add('⚠ Σκι: Μέτριες συνθήκες');
+    } else {
+      parts.add('❌ Σκι: Ακατάλληλες συνθήκες');
+    }

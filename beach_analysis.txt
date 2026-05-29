@@ -1,0 +1,41 @@
+      } else {
+        _errorMessage = _isSkiMode
+          ? 'Δεν βρέθηκαν δεδομένα χιονιού. Δοκίμασε ορεινή περιοχή.'
+          : 'Δεν βρέθηκαν δεδομένα θαλάσσης. Δοκίμασε παραλιακή περιοχή ή επίλεξε στον χάρτη 👇';
+        if (!_isSkiMode) _showMap = true;
+      }
+    });
+  }
+
+  Future<void> _getAiAnalysis(BeachData data) async {
+    setState(() { _aiLoading = true; });
+
+    final provider = await _storage.read(key: 'ai_provider');
+    final apiKey = await _storage.read(key: '${provider ?? 'gemini'}_api_key');
+
+    if (apiKey != null && apiKey.isNotEmpty) {
+      try {
+        final context = _isSkiMode
+          ? 'Χιονοδρομικό: ${data.locationName}\n'
+            'Θερμοκρασία: ${data.seaTemperature.toStringAsFixed(1)}°C\n'
+            'Χιόνι: ${data.waveHeight.toStringAsFixed(1)}cm\n'
+            'Άνεμος: ${data.windSpeed.toStringAsFixed(0)} km/h\n'
+            'Ορατότητα: ${data.wavePeriod.toStringAsFixed(0)}km'
+          : 'Παραλία: ${data.locationName}\n'
+            'Κύμα: ${data.waveHeight.toStringAsFixed(1)}m (${data.waveCondition})\n'
+            'Άνεμος: ${data.windSpeed.toStringAsFixed(0)} km/h ${data.waveDirectionText}\n'
+            'Θερμοκρασία νερού: ${data.seaTemperature.toStringAsFixed(1)}°C\n'
+            'Περίοδος κύματος: ${data.wavePeriod.toStringAsFixed(1)}s';
+
+        final question = _isSkiMode
+          ? 'Ανάλυσε τις συνθήκες για σκι, snowboard και οικογένειες. Σύντομα.'
+          : 'Ανάλυσε τις συνθήκες για κολύμπι, σερφ, κατάδυση και παιδιά. Σύντομα.';
+
+        final response = await _aiService.ask(context, question);
+        setState(() { _aiAnalysis = response; _aiLoading = false; });
+        return;
+      } catch (_) {}
+    }
+
+    setState(() {
+      _aiAnalysis = _isSkiMode
