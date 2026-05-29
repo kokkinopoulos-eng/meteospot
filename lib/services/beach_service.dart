@@ -246,32 +246,38 @@ class BeachService {
 
   static Future<List<Map<String, dynamic>>> findNearbyBeaches(
       double lat, double lon, {int radiusKm = 50}) async {
-    try {
-      final query = '[out:json][timeout:25];'
-          '(node["natural"="beach"](around:\,\,\);'
-          'way["natural"="beach"](around:\,\,\););'
-          'out center 15;';
-      final uri = Uri.parse('https://overpass-api.de/api/interpreter')
-          .replace(queryParameters: {'data': query});
-      final response = await http.get(uri, headers: {
-        'User-Agent': 'MetAIoSpot/1.0 (gr.webdevelopment.metaiospot)'
-      }).timeout(const Duration(seconds: 20));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final elements = data['elements'] as List? ?? [];
-        final beaches = <Map<String, dynamic>>[];
-        for (final e in elements) {
-          final tags = e['tags'] as Map? ?? {};
-          final name = tags['name'] ?? tags['name:el'] ?? 'Παραλία';
-          final eLat = (e['lat'] ?? e['center']?['lat']) as num?;
-          final eLon = (e['lon'] ?? e['center']?['lon']) as num?;
-          if (eLat != null && eLon != null) {
-            beaches.add({'name': name, 'lat': eLat.toDouble(), 'lon': eLon.toDouble()});
+    final query = '[out:json][timeout:25];'
+        '(node["natural"="beach"](around:\,\,\);'
+        'way["natural"="beach"](around:\,\,\););'
+        'out center 15;';
+    final mirrors = [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.kumi.systems/api/interpreter',
+      'https://overpass.openstreetmap.ru/api/interpreter',
+    ];
+    for (final mirror in mirrors) {
+      try {
+        final uri = Uri.parse(mirror).replace(queryParameters: {'data': query});
+        final response = await http.get(uri, headers: {
+          'User-Agent': 'MetAIoSpot/1.0 (gr.webdevelopment.metaiospot)'
+        }).timeout(const Duration(seconds: 20));
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final elements = data['elements'] as List? ?? [];
+          final beaches = <Map<String, dynamic>>[];
+          for (final e in elements) {
+            final tags = e['tags'] as Map? ?? {};
+            final name = tags['name'] ?? tags['name:el'] ?? 'Παραλία';
+            final eLat = (e['lat'] ?? e['center']?['lat']) as num?;
+            final eLon = (e['lon'] ?? e['center']?['lon']) as num?;
+            if (eLat != null && eLon != null) {
+              beaches.add({'name': name, 'lat': eLat.toDouble(), 'lon': eLon.toDouble()});
+            }
           }
+          if (beaches.isNotEmpty) return beaches;
         }
-        return beaches;
-      }
-    } catch (_) {}
+      } catch (_) { continue; }
+    }
     return [];
   }
 }
