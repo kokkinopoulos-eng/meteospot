@@ -244,6 +244,102 @@ class BeachService {
   }
 
 
+  static double _distance(double lat1, double lon1, double lat2, double lon2) {
+    final dlat = (lat2 - lat1).abs();
+    final dlon = (lon2 - lon1).abs();
+    return dlat * dlat + dlon * dlon;
+  }
+
+  static const List<Map<String, dynamic>> _greekBeachesFallback = [
+    {'name': 'Βουλιαγμένη', 'lat': 37.8123, 'lon': 23.7812},
+    {'name': 'Βάρκιζα', 'lat': 37.8012, 'lon': 23.7923},
+    {'name': 'Λούτσα', 'lat': 37.9312, 'lon': 24.0523},
+    {'name': 'Ραφήνα', 'lat': 38.0212, 'lon': 24.0012},
+    {'name': 'Σχοινιάς', 'lat': 38.1534, 'lon': 24.0345},
+    {'name': 'Νέα Μάκρη', 'lat': 38.0934, 'lon': 23.9823},
+    {'name': 'Ανάβυσσος', 'lat': 37.7234, 'lon': 23.9312},
+    {'name': 'Σαρωνίδα', 'lat': 37.7512, 'lon': 23.9534},
+    {'name': 'Γλυφάδα', 'lat': 37.8712, 'lon': 23.7523},
+    {'name': 'Φάληρο', 'lat': 37.9234, 'lon': 23.6934},
+    {'name': 'Καλλιθέα Χαλκιδικής', 'lat': 40.0823, 'lon': 23.1534},
+    {'name': 'Κασσάνδρα', 'lat': 39.9712, 'lon': 23.3823},
+    {'name': 'Σάνη', 'lat': 40.0534, 'lon': 23.3012},
+    {'name': 'Χανιώτη', 'lat': 39.9923, 'lon': 23.4234},
+    {'name': 'Νικήτη', 'lat': 40.2123, 'lon': 23.6534},
+    {'name': 'Ουρανούπολη', 'lat': 40.3323, 'lon': 23.9712},
+    {'name': 'Ελαφονήσι', 'lat': 35.2634, 'lon': 23.5312},
+    {'name': 'Μπάλος', 'lat': 35.5923, 'lon': 23.5634},
+    {'name': 'Βάι', 'lat': 35.2523, 'lon': 26.2512},
+    {'name': 'Σταλίδα', 'lat': 35.2934, 'lon': 25.4123},
+    {'name': 'Μάλια', 'lat': 35.2812, 'lon': 25.5034},
+    {'name': 'Χερσόνησος', 'lat': 35.2712, 'lon': 25.3723},
+    {'name': 'Αγία Γαλήνη', 'lat': 35.0923, 'lon': 24.6923},
+    {'name': 'Πλακιάς', 'lat': 35.1834, 'lon': 24.4034},
+    {'name': 'Ρέθυμνο παραλία', 'lat': 35.3712, 'lon': 24.4712},
+    {'name': 'Γεωργιούπολη', 'lat': 35.3623, 'lon': 24.2534},
+    {'name': 'Χανιά παραλία', 'lat': 35.5134, 'lon': 24.0212},
+    {'name': 'Φαλάσαρνα', 'lat': 35.5012, 'lon': 23.5712},
+    {'name': 'Λίντος', 'lat': 36.0923, 'lon': 28.0834},
+    {'name': 'Φαληράκι', 'lat': 36.3234, 'lon': 28.2012},
+    {'name': 'Τσαμπίκα', 'lat': 36.2034, 'lon': 28.1312},
+    {'name': 'Πεφκός', 'lat': 36.0712, 'lon': 28.0623},
+    {'name': 'Παλαιοκαστρίτσα', 'lat': 39.6623, 'lon': 19.6934},
+    {'name': 'Γλυφάδα Κέρκυρας', 'lat': 39.5934, 'lon': 19.7812},
+    {'name': 'Μυρτιώτισσα', 'lat': 39.5823, 'lon': 19.7234},
+    {'name': 'Αγίος Γόρδης', 'lat': 39.5234, 'lon': 19.8234},
+    {'name': 'Πλατύς Γιαλός Μυκόνου', 'lat': 37.3934, 'lon': 25.3612},
+    {'name': 'Ψαρού', 'lat': 37.4112, 'lon': 25.3234},
+    {'name': 'Περίσσα', 'lat': 36.3523, 'lon': 25.4712},
+    {'name': 'Καμάρι', 'lat': 36.3734, 'lon': 25.4834},
+    {'name': 'Ναυάγιο Ζακύνθου', 'lat': 37.8612, 'lon': 20.6234},
+    {'name': 'Λαγανάς', 'lat': 37.7234, 'lon': 20.8534},
+    {'name': 'Μύρτος Κεφαλονιάς', 'lat': 38.2334, 'lon': 20.5512},
+    {'name': 'Αντίσαμος', 'lat': 38.2512, 'lon': 20.6823},
+    {'name': 'Εγκρεμνοί', 'lat': 38.6923, 'lon': 20.5534},
+    {'name': 'Πόρτο Κατσίκι', 'lat': 38.6512, 'lon': 20.5423},
+    {'name': 'Κουκουναριές', 'lat': 39.1423, 'lon': 23.4234},
+    {'name': 'Λαλάρια', 'lat': 39.1912, 'lon': 23.5234},
+    {'name': 'Χρυσή Ακτή Πάρου', 'lat': 37.0234, 'lon': 25.2534},
+    {'name': 'Κολυμπήθρες Πάρου', 'lat': 37.1123, 'lon': 25.1923},
+    {'name': 'Αγία Άννα Νάξου', 'lat': 37.0312, 'lon': 25.3634},
+    {'name': 'Πλάκα Νάξου', 'lat': 37.0123, 'lon': 25.3512},
+    {'name': 'Σαραντινάρι Μήλου', 'lat': 36.7234, 'lon': 24.4623},
+    {'name': 'Φυριπλάκα', 'lat': 36.6812, 'lon': 24.4523},
+    {'name': 'Τίγκακι', 'lat': 36.8534, 'lon': 27.0823},
+    {'name': 'Κάρδαμαινα', 'lat': 36.7823, 'lon': 27.1523},
+    {'name': 'Χρυσή Αμμουδιά Θάσου', 'lat': 40.7234, 'lon': 24.6634},
+    {'name': 'Αλυκή Θάσου', 'lat': 40.6523, 'lon': 24.7312},
+    {'name': 'Βατερά', 'lat': 38.9734, 'lon': 26.2334},
+    {'name': 'Ψιλή Άμμος Σάμου', 'lat': 37.6634, 'lon': 26.9423},
+    {'name': 'Κοκκάρι', 'lat': 37.7934, 'lon': 26.8812},
+    {'name': 'Βοϊδοκοιλιά', 'lat': 36.9734, 'lon': 21.6623},
+    {'name': 'Τολό', 'lat': 37.5123, 'lon': 22.8634},
+    {'name': 'Πόρτο Χέλι', 'lat': 37.3234, 'lon': 23.1512},
+    {'name': 'Μονεμβάσια', 'lat': 36.6923, 'lon': 23.0534},
+    {'name': 'Ελαφόνησος', 'lat': 36.4923, 'lon': 22.9734},
+    {'name': 'Στούπα', 'lat': 36.8423, 'lon': 22.2712},
+    {'name': 'Μεθώνη', 'lat': 36.8212, 'lon': 21.7034},
+    {'name': 'Κορώνη', 'lat': 36.7934, 'lon': 21.9623},
+    {'name': 'Φοινικούντα', 'lat': 36.8034, 'lon': 21.8134},
+    {'name': 'Μηλοπότας', 'lat': 36.7134, 'lon': 25.3312},
+    {'name': 'Μαγγανάρι', 'lat': 36.6823, 'lon': 25.3534},
+    {'name': 'Στάφυλος', 'lat': 39.1023, 'lon': 23.7234},
+    {'name': 'Μύρινα Λήμνου', 'lat': 39.8734, 'lon': 25.0612},
+    {'name': 'Μαγαζιά Σκύρου', 'lat': 38.8934, 'lon': 24.5534},
+    {'name': 'Πλατύς Γιαλός Σίφνου', 'lat': 36.9423, 'lon': 24.7234},
+    {'name': 'Γρίκος Πάτμου', 'lat': 37.2934, 'lon': 26.5623},
+    {'name': 'Νιμπόριο Σύμης', 'lat': 36.6234, 'lon': 27.8423},
+    {'name': 'Κάρφας Χίου', 'lat': 38.3234, 'lon': 26.1423},
+    {'name': 'Παχιά Άμμος Σαμοθράκης', 'lat': 40.4423, 'lon': 25.5534},
+    {'name': 'Αιγιάλη Αμοργού', 'lat': 36.8534, 'lon': 25.9023},
+    {'name': 'Λούρδας Κεφαλονιάς', 'lat': 38.0923, 'lon': 20.7234},
+    {'name': 'Βασιλική Λευκάδας', 'lat': 38.6234, 'lon': 20.6623},
+    {'name': 'Ξυλόκαστρο', 'lat': 38.0734, 'lon': 22.6334},
+    {'name': 'Λουτράκι παραλία', 'lat': 37.9623, 'lon': 22.9734},
+    {'name': 'Νέα Επίδαυρος', 'lat': 37.6434, 'lon': 23.1523},
+    {'name': 'Ερμιόνη', 'lat': 37.3834, 'lon': 23.2512},
+  ];
+
   static Future<List<Map<String, dynamic>>> findNearbyBeaches(
       double lat, double lon, {int radiusKm = 50}) async {
     final query = '[out:json][timeout:25];'
@@ -260,7 +356,7 @@ class BeachService {
         final uri = Uri.parse(mirror).replace(queryParameters: {'data': query});
         final response = await http.get(uri, headers: {
           'User-Agent': 'MetAIoSpot/1.0 (gr.webdevelopment.metaiospot)'
-        }).timeout(const Duration(seconds: 20));
+        }).timeout(const Duration(seconds: 15));
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           final elements = data['elements'] as List? ?? [];
@@ -278,6 +374,17 @@ class BeachService {
         }
       } catch (_) { continue; }
     }
-    return [];
+    final radiusDeg = radiusKm / 111.0;
+    final nearby = _greekBeachesFallback.where((b) {
+      final dlat = (b['lat'] as double) - lat;
+      final dlon = (b['lon'] as double) - lon;
+      return (dlat * dlat + dlon * dlon) <= radiusDeg * radiusDeg;
+    }).toList();
+    nearby.sort((a, b) {
+      final da = _distance(lat, lon, a['lat'] as double, a['lon'] as double);
+      final db = _distance(lat, lon, b['lat'] as double, b['lon'] as double);
+      return da.compareTo(db);
+    });
+    return nearby;
   }
 }

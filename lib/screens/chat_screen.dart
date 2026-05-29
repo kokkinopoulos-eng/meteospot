@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../services/ai_service.dart';
 import '../services/beach_service.dart';
 import '../models/weather_data.dart';
+import 'beach_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final WeatherData weatherData;
@@ -23,6 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Map<String, dynamic>> _messages = [];
   bool _isLoading = false;
   bool _hasApiKey = false;
+  List<Map<String, dynamic>> _lastBeaches = [];
 
   final List<String> _quickQuestions = [
     'Που να πάω για μπάνιο;',
@@ -77,6 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _messages.add({'role': 'user', 'content': text, 'type': 'text'});
       _isLoading = true;
+      _lastBeaches = [];
     });
     _controller.clear();
     _scrollToBottom();
@@ -90,6 +93,7 @@ class _ChatScreenState extends State<ChatScreen> {
           for (final b in beaches.take(5)) {
             context += '- ${b["name"]}\n';
           }
+          setState(() => _lastBeaches = beaches.take(5).toList());
         }
       }
       final response = await _aiService.ask(context, text);
@@ -200,6 +204,7 @@ class _ChatScreenState extends State<ChatScreen> {
             if (!_hasApiKey) _buildNoKeyBanner(),
             Expanded(child: _messages.isEmpty ? _buildWelcome() : _buildMessages()),
             _buildQuickQuestions(),
+            if (_lastBeaches.isNotEmpty) _buildBeachButtons(),
             _buildInput(),
           ],
         ),
@@ -372,6 +377,37 @@ class _ChatScreenState extends State<ChatScreen> {
               border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
             ),
             child: Text(q, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          ),
+        )).toList(),
+      ),
+    );
+  }
+
+  Widget _buildBeachButtons() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 6,
+        children: _lastBeaches.map((b) => GestureDetector(
+          onTap: () => Navigator.push(context, MaterialPageRoute(
+            builder: (_) => BeachScreen(
+              initialName: b['name'] as String,
+              initialLat: b['lat'] as double,
+              initialLon: b['lon'] as double,
+            ),
+          )),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0D47A1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.6)),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              const Text('🏖️ ', style: TextStyle(fontSize: 12)),
+              Text(b['name'] as String, style: const TextStyle(color: Colors.white, fontSize: 12)),
+            ]),
           ),
         )).toList(),
       ),

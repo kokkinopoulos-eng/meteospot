@@ -36,7 +36,10 @@ class FavoriteSpot {
 }
 
 class BeachScreen extends StatefulWidget {
-  const BeachScreen({super.key});
+  final String? initialName;
+  final double? initialLat;
+  final double? initialLon;
+  const BeachScreen({super.key, this.initialName, this.initialLat, this.initialLon});
 
   @override
   State<BeachScreen> createState() => _BeachScreenState();
@@ -62,6 +65,11 @@ class _BeachScreenState extends State<BeachScreen> {
   void initState() {
     super.initState();
     _loadFavorites();
+    if (widget.initialName != null && widget.initialLat != null && widget.initialLon != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadData(widget.initialName!, widget.initialLat!, widget.initialLon!);
+      });
+    }
   }
 
   Future<void> _loadFavorites() async {
@@ -189,7 +197,7 @@ class _BeachScreenState extends State<BeachScreen> {
           : '\u03a0\u03b1\u03c1\u03b1\u03bb\u03af\u03b1: ${data.locationName}\n\u039a\u03cd\u03bc\u03b1: ${data.waveHeight.toStringAsFixed(1)}m\n\u0386\u03bd\u03b5\u03bc\u03bf\u03c2: ${data.windSpeed.toStringAsFixed(0)} km/h\n\u0398\u03b5\u03c1\u03bc\u03bf\u03ba\u03c1\u03b1\u03c3\u03af\u03b1 \u03bd\u03b5\u03c1\u03bf\u03cd: ${data.seaTemperature.toStringAsFixed(1)}\u00b0C';
         final question = _isSkiMode
           ? '\u0391\u03bd\u03ac\u03bb\u03c5\u03c3\u03b5 \u03c3\u03c5\u03bd\u03b8\u03ae\u03ba\u03b5\u03c2 \u03b3\u03b9\u03b1 \u03c3\u03ba\u03b9, snowboard, \u03bf\u03b9\u03ba\u03bf\u03b3\u03ad\u03bd\u03b5\u03b9\u03b1. \u03a3\u03cd\u03bd\u03c4\u03bf\u03bc\u03b1.'
-          : '\u0391\u03bd\u03ac\u03bb\u03c5\u03c3\u03b5 \u03c3\u03c5\u03bd\u03b8\u03ae\u03ba\u03b5\u03c2 \u03b3\u03b9\u03b1 \u03ba\u03bf\u03bb\u03cd\u03bc\u03c0\u03b9, \u03c3\u03b5\u03c1\u03c6, \u03ba\u03b1\u03c4\u03ac\u03b4\u03c5\u03c3\u03b7, drone, \u03c0\u03b1\u03b9\u03b4\u03b9\u03ac. \u03a3\u03cd\u03bd\u03c4\u03bf\u03bc\u03b1.';
+          : 'Ανάλυσε συνθήκες για κολύμπι, surf, κατάδυση, drone, παιδιά. Αν γνωρίζεις αν η παραλία έχει γαλάζια σημαία 🔵 ανέφερέ το. Σύντομα.';
         final response = await _aiService.ask(context, question);
         setState(() { _aiAnalysis = response; _aiLoading = false; });
         return;
