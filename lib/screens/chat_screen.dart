@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/ai_service.dart';
+import '../services/beach_service.dart';
 import '../models/weather_data.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -24,12 +25,10 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _hasApiKey = false;
 
   final List<String> _quickQuestions = [
+    'Που να πάω για μπάνιο;',
     'Θα βρέξει σήμερα;',
     'Να βγω για περπάτημα;',
-    'Καιρός για παραλία;',
-    'Συνθήκες για σκι;',
     'Καλό για drone;',
-    'Καλός για ψάρεμα;',
   ];
 
   @override
@@ -67,6 +66,12 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  bool _isBeachQuestion(String text) {
+    final lower = text.toLowerCase();
+    return lower.contains('μπάνιο') || lower.contains('παραλία') ||
+        lower.contains('κολύμπι') || lower.contains('θάλασσα');
+  }
+
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
     setState(() {
@@ -75,9 +80,19 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     _controller.clear();
     _scrollToBottom();
-
     try {
-      final response = await _aiService.ask(_weatherContext, text);
+      String context = _weatherContext;
+      if (_isBeachQuestion(text)) {
+        final beaches = await BeachService.findNearbyBeaches(
+            widget.weatherData.latitude, widget.weatherData.longitude);
+        if (beaches.isNotEmpty) {
+          context += '\n\nΚοντινές παραλίες (50km):\n';
+          for (final b in beaches.take(5)) {
+            context += '- ${b["name"]}\n';
+          }
+        }
+      }
+      final response = await _aiService.ask(context, text);
       setState(() {
         _messages.add({'role': 'assistant', 'content': response, 'type': 'text'});
         _isLoading = false;
@@ -111,16 +126,13 @@ class _ChatScreenState extends State<ChatScreen> {
         maxHeight: 1024,
       );
       if (photo == null) return;
-
       setState(() {
         _messages.add({'role': 'user', 'content': photo.path, 'type': 'photo'});
         _isLoading = true;
       });
       _scrollToBottom();
-
       final file = File(photo.path);
       final response = await _aiService.analyzePhoto(_weatherContext, file);
-
       setState(() {
         _messages.add({'role': 'assistant', 'content': response, 'type': 'text'});
         _isLoading = false;
@@ -345,30 +357,23 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildQuickQuestions() {
-    return SizedBox(
-      height: 44,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-        itemCount: _quickQuestions.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () => _sendMessage(_quickQuestions[index]),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1A2744),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-                ),
-                child: Text(_quickQuestions[index],
-                    style: const TextStyle(color: Colors.white70, fontSize: 12)),
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 6,
+        children: _quickQuestions.map((q) => GestureDetector(
+          onTap: () => _sendMessage(q),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1A2744),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
             ),
-          );
-        },
+            child: Text(q, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          ),
+        )).toList(),
       ),
     );
   }

@@ -31,6 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _error;
   int _tapCount = 0;
   DateTime? _lastTap;
+  int _logoTapCount = 0;
+  DateTime? _lastLogoTap;
+  bool _adsDisabled = true;
 
   @override
   void initState() {
@@ -92,6 +95,24 @@ class _HomeScreenState extends State<HomeScreen> {
     return ((lon + 180.0) / 360.0 * (1 << zoom)).floor();
   }
 
+
+  void _onLogoTap() {
+    final now = DateTime.now();
+    if (_lastLogoTap != null && now.difference(_lastLogoTap!).inSeconds > 3) {
+      _logoTapCount = 0;
+    }
+    _lastLogoTap = now;
+    _logoTapCount++;
+    if (_logoTapCount >= 7) {
+      _logoTapCount = 0;
+      setState(() => _adsDisabled = !_adsDisabled);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(_adsDisabled ? '🚫 Διαφημίσεις απενεργοποιημένες' : '✅ Διαφημίσεις ενεργοποιημένες'),
+        backgroundColor: _adsDisabled ? Colors.red.shade800 : Colors.green.shade800,
+        duration: const Duration(seconds: 2),
+      ));
+    }
+  }
   int _lat2tile(double lat, int zoom) {
     final latRad = lat * math.pi / 180.0;
     return ((1.0 - math.log(math.tan(latRad) + 1.0 / math.cos(latRad)) / math.pi) / 2.0 * (1 << zoom)).floor();
@@ -219,13 +240,16 @@ class _HomeScreenState extends State<HomeScreen> {
             elevation: 0,
             centerTitle: true,
             automaticallyImplyLeading: false,
-            title: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Met', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0)),
-                Text('AI', style: TextStyle(color: Color(0xFFFFD700), fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                Text('o Spot', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0)),
-              ],
+            title: GestureDetector(
+              onTap: _onLogoTap,
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Met', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0)),
+                  Text('AI', style: TextStyle(color: Color(0xFFFFD700), fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                  Text('o Spot', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0)),
+                ],
+              ),
             ),
             actions: [
               IconButton(
@@ -313,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16),
             _buildDetailsCard(),
             const SizedBox(height: 16),
-            AdmobAdCard(weatherData: _weatherData!),
+            if (!_adsDisabled) AdmobAdCard(key: ValueKey(_adsDisabled), weatherData: _weatherData!),
             const SizedBox(height: 16),
             _buildAIInsightCard(),
             const SizedBox(height: 32),
