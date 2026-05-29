@@ -24,16 +24,23 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _hasApiKey = false;
 
   final List<String> _quickQuestions = [
-    'Να βγω για περπάτημα;',
     'Θα βρέξει σήμερα;',
-    'Πόσο κρύο είναι;',
+    'Να βγω για περπάτημα;',
+    'Καιρός για παραλία;',
+    'Συνθήκες για σκι;',
+    'Καλό για drone;',
     'Καλός για ψάρεμα;',
-    'Πότε θα βελτιωθεί;',
   ];
 
   @override
   void initState() {
     super.initState();
+    _checkApiKey();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _checkApiKey();
   }
 
@@ -148,6 +155,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFF0D1B2A),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -156,16 +164,6 @@ class _ChatScreenState extends State<ChatScreen> {
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share, color: Colors.white),
-            onPressed: () {
-              final aiMessages = _messages.where((m) => m['role'] == 'assistant').toList();
-              if (aiMessages.isEmpty) return;
-              final last = aiMessages.last['content'] as String;
-              SharePlus.instance.share(ShareParams(text: 'MetAIoSpot AI:\n$last'));
-            },
-            tooltip: 'Κοινοποίηση',
-          ),
           IconButton(
             icon: const Icon(Icons.share, color: Colors.white),
             onPressed: () {
@@ -224,7 +222,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(w.weatherEmoji, style: const TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
-            Text('${w.temperature.toStringAsFixed(1)}Β°C - ${w.description}',
+            Text('${w.temperature.toStringAsFixed(1)}°C - ${w.description}',
                 style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             const Text('Ρώτα με για τον καιρό!',

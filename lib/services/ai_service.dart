@@ -56,7 +56,7 @@ class AIService {
     final keywords = [
       'καιρός', 'βροχή', 'ήλιος', 'χιόνι', 'άνεμος', 'αέρας',
       'θερμοκρασία', 'υγρασία', 'πίεση', 'σύννεφα', 'ομίχλη',
-      'καταιγίδα', 'ψάρεμα', 'περπάτημα', 'εκδρομή', 'μπάνιο',
+      'καταιγίδα', 'ψάρεμα', 'περπάτημα', 'εκδρομή', 'μπάνιο', 'ταξίδι', 'διακοπές', 'χιονοδρομικό', 'σκι', 'snowboard', 'παραλία', 'νησί', 'ορεινός',
       'weather', 'rain', 'snow', 'wind', 'temperature', 'cloud',
       'να βγω', 'να πάω', 'να οδηγήσω', 'ασφαλές', 'κρύο', 'ζέστη',
       'uv', 'ορατότητα', 'υψόμετρο', 'πρόβλεψη', 'forecast',
@@ -82,9 +82,9 @@ class AIService {
   }
 
   static const String _systemPrompt =
-    'Είσαι έμπειρος μετεωρολόγος που αναλύει τοπικές καιρικές συνθήκες και θαλάσσιες δραστηριότητες. '
-    'Απαντάς ΜΟΝΟ σε ερωτήσεις σχετικές με καιρό, θάλασσα, κύματα, παραλίες και δραστηριότητες που επηρεάζονται από αυτά. '
-    'Αν η ερώτηση είναι ΑΣΧΕΤΗ, απάντα: "🌤️ Μπορώ να απαντήσω μόνο σε ερωτήσεις σχετικές με τον καιρό!" '
+    'Είσαι έμπειρος μετεωρολόγος και σύμβουλος υπαίθριων δραστηριοτήτων. Αναλύεις τοπικές καιρικές συνθήκες για παραλίες, χιονοδρομικά, εκδρομές, ταξίδια και δραστηριότητες. '
+    'Απαντάς σε ερωτήσεις για καιρό, παραλίες, χιονοδρομικά, εκδρομές και ταξίδια. '
+    'Δίνε ΞΕΚΑΘΑΡΕΣ απαντήσεις: ΝΑΙ ή ΟΧΙ πρώτα, μετά σύντομη εξήγηση. Αν ρωτηθείς για άλλη πόλη, εξήγησε ότι έχεις μόνο δεδομένα για την τρέχουσα τοποθεσία. '
     'Δίνεις σύντομες, χρήσιμες απαντήσεις στα Ελληνικά. '
     'Πάντα προσθέτεις: "⚠️ Για δραστηριότητες με κίνδυνο, συμβουλευτείτε ΕΜΥ."';
 
@@ -102,7 +102,7 @@ class AIService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'contents': [{'parts': [{'text': '$_systemPrompt\n\nΔεδομένα καιρού:\n$weatherContext\n\nΕρώτηση: $question'}]}],
-        'generationConfig': {'temperature': 0.7, 'maxOutputTokens': 500}
+        'generationConfig': {'temperature': 0.7, 'maxOutputTokens': 800}
       }),
     ).timeout(const Duration(seconds: 30));
     if (response.statusCode == 200) {
@@ -130,7 +130,7 @@ class AIService {
             {'inline_data': {'mime_type': 'image/jpeg', 'data': base64Image}}
           ]
         }],
-        'generationConfig': {'temperature': 0.5, 'maxOutputTokens': 400}
+        'generationConfig': {'temperature': 0.5, 'maxOutputTokens': 800}
       }),
     ).timeout(const Duration(seconds: 30));
     if (response.statusCode == 200) {
@@ -153,7 +153,7 @@ class AIService {
       },
       body: jsonEncode({
         'model': 'claude-haiku-4-5',
-        'max_tokens': 400,
+        'max_tokens': 800,
         'system': '$_skyPhotoPrompt\n\nΔεδομένα:\n$weatherContext',
         'messages': [{
           'role': 'user',
@@ -180,7 +180,7 @@ class AIService {
       headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $apiKey'},
       body: jsonEncode({
         'model': 'gpt-4o-mini',
-        'max_tokens': 400,
+        'max_tokens': 800,
         'messages': [{
           'role': 'user',
           'content': [
@@ -214,7 +214,7 @@ class AIService {
       headers: {'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01'},
       body: jsonEncode({
         'model': 'claude-haiku-4-5',
-        'max_tokens': 500,
+        'max_tokens': 800,
         'system': '$_systemPrompt\n\nΔεδομένα:\n$weatherContext',
         'messages': [{'role': 'user', 'content': question}],
       }),
@@ -235,7 +235,7 @@ class AIService {
       headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $apiKey'},
       body: jsonEncode({
         'model': 'gpt-4o-mini',
-        'max_tokens': 500,
+        'max_tokens': 800,
         'messages': [
           {'role': 'system', 'content': '$_systemPrompt\n\nΔεδομένα:\n$weatherContext'},
           {'role': 'user', 'content': question}
