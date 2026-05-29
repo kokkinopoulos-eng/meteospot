@@ -3,7 +3,6 @@ import 'screens/home_screen.dart';
 import 'screens/sun_moon_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/beach_screen.dart';
-import 'screens/settings_screen.dart';
 import 'models/weather_data.dart';
 
 class MainNavigation extends StatefulWidget {

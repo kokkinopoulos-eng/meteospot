@@ -116,7 +116,7 @@ class SensorService {
     // ===== ΑΝΑΛΥΣΗ ΑΝΕΜΟΥ =====
     if (windSpeed != null) {
       if (windSpeed > 70) {
-        warnings.add('πŸŒ ΘΥΕΛΛΩΔΕΙΣ άνεμοι (${windSpeed.toStringAsFixed(0)} km/h) - μείνετε μέσα!');
+        warnings.add('🌀 ΘΥΕΛΛΩΔΕΙΣ άνεμοι (${windSpeed.toStringAsFixed(0)} km/h) - μείνετε μέσα!');
       } else if (windSpeed > 50) {
         warnings.add('💨 Πολύ ισχυροί άνεμοι - επικίνδυνο για πεζοπορία/ψάρεμα');
       } else if (windSpeed > 30) {
