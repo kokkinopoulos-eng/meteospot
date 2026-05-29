@@ -10,6 +10,7 @@ import '../services/weather_service.dart';
 import '../services/location_service.dart';
 import '../services/sensor_service.dart';
 import '../models/weather_data.dart';
+import '../widgets/admob_ad_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(WeatherData)? onWeatherLoaded;
@@ -302,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onRefresh: _loadWeather,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -311,6 +312,8 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildMapCard(),
             const SizedBox(height: 16),
             _buildDetailsCard(),
+            const SizedBox(height: 16),
+            AdmobAdCard(weatherData: _weatherData!),
             const SizedBox(height: 16),
             _buildAIInsightCard(),
             const SizedBox(height: 32),
@@ -533,7 +536,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildDetailsCard() {
     final w = _weatherData!;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 32),
       decoration: BoxDecoration(
         color: const Color(0xFF1A2744),
         borderRadius: BorderRadius.circular(16),
@@ -686,7 +689,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildAIInsightCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 32),
       decoration: BoxDecoration(
         color: const Color(0xFF1A2744),
         borderRadius: BorderRadius.circular(16),
@@ -720,3 +723,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+
+
+
