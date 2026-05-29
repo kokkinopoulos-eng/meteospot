@@ -89,6 +89,26 @@ class BeachService {
     return null;
   }
 
+  // Check if coordinates are in the sea (not on land)
+  static Future<bool> isSeaLocation(double lat, double lon) async {
+    try {
+      final uri = Uri.parse(
+        'https://marine-api.open-meteo.com/v1/marine?latitude=$lat&longitude=$lon'
+        '&hourly=wave_height&forecast_days=1'
+      );
+      final response = await http.get(uri).timeout(const Duration(seconds: 8));
+      if (response.statusCode != 200) return false;
+      final data = jsonDecode(response.body);
+      final hourly = data['hourly'];
+      if (hourly == null) return false;
+      final waveHeights = hourly['wave_height'] as List?;
+      if (waveHeights == null || waveHeights.isEmpty) return false;
+      return waveHeights.any((v) => v != null);
+    } catch (_) {
+      return false;
+    }
+  }
+
   static Future<BeachData?> getBeachData(String locationName, double lat, double lon) async {
     try {
       final marineUri = Uri.parse(
@@ -106,6 +126,9 @@ class BeachService {
         http.get(marineUri).timeout(const Duration(seconds: 10)),
         http.get(weatherUri).timeout(const Duration(seconds: 10)),
       ]);
+
+      // If marine API returns error, location is on land
+      if (results[0].statusCode != 200) return null;
 
       if (results[0].statusCode == 200 && results[1].statusCode == 200) {
         final marineData = jsonDecode(results[0].body);
@@ -199,6 +222,25 @@ class BeachService {
       }
     } catch (_) {}
     return null;
+  }
+
+
+  // Check if location is mountainous (elevation > 600m) for ski restriction
+  static Future<bool> isMountainLocation(double lat, double lon) async {
+    try {
+      final uri = Uri.parse(
+        'https://api.open-meteo.com/v1/elevation?latitude=$lat&longitude=$lon'
+      );
+      final response = await http.get(uri).timeout(const Duration(seconds: 8));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final elevation = (data['elevation'] as List?)?.firstOrNull;
+        if (elevation != null) {
+          return (elevation as num).toDouble() > 600;
+        }
+      }
+    } catch (_) {}
+    return false;
   }
 
 }

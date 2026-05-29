@@ -135,7 +135,28 @@ class _BeachScreenState extends State<BeachScreen> {
 
   Future<void> _loadData(String name, double lat, double lon) async {
     if (!lat.isFinite || !lon.isFinite) return;
-    setState(() { _isLoading = true; _errorMessage = null; });
+    setState(() { _isLoading = true; _errorMessage = null; _isFavorite = false; });
+
+    // Geographic restriction
+    if (!_isSkiMode) {
+      final isSea = await BeachService.isSeaLocation(lat, lon);
+      if (!isSea) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = '❌ Αυτή η τοποθεσία είναι στη ξηρά! Δοκίμασε παραλιακή τοποθεσία.';
+        });
+        return;
+      }
+    } else {
+      final isMountain = await BeachService.isMountainLocation(lat, lon);
+      if (!isMountain) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = '❌ Αυτή η τοποθεσία δεν είναι ορεινή! Δοκίμασε χιονοδρομική περιοχή (Παρνασσός, Βέρμιο...).';
+        });
+        return;
+      }
+    }
 
     final data = _isSkiMode
       ? await BeachService.getSkiData(name, lat, lon)
@@ -150,12 +171,11 @@ class _BeachScreenState extends State<BeachScreen> {
         _getAiAnalysis(data);
       } else {
         _errorMessage = _isSkiMode
-          ? '\u0394\u03b5\u03bd \u03b2\u03c1\u03ad\u03b8\u03b7\u03ba\u03b1\u03bd \u03b4\u03b5\u03b4\u03bf\u03bc\u03ad\u03bd\u03b1 \u03c7\u03b9\u03bf\u03bd\u03b9\u03bf\u03cd.'
-          : '\u0394\u03b5\u03bd \u03b2\u03c1\u03ad\u03b8\u03b7\u03ba\u03b1\u03bd \u03b4\u03b5\u03b4\u03bf\u03bc\u03ad\u03bd\u03b1 \u03b8\u03b1\u03bb\u03ac\u03c3\u03c3\u03b7\u03c2.';
+          ? '❌ Δεν βρέθηκαν δεδομένα χιονιού. Δοκίμασε ορεινή περιοχή.'
+          : '❌ Δεν βρέθηκαν δεδομένα θαλάσσης. Δοκίμασε παραλιακή τοποθεσία.';
       }
     });
   }
-
   Future<void> _getAiAnalysis(BeachData data) async {
     setState(() { _aiLoading = true; });
 
