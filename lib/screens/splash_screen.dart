@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main_navigation.dart';
+import '../services/beach_service.dart';
 import 'onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,6 +14,8 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  double _downloadProgress = 0.0;
+  String _downloadStatus = '';
   late Animation<double> _fadeIn;
   late Animation<double> _scale;
 
@@ -47,6 +50,21 @@ class _SplashScreenState extends State<SplashScreen>
       return;
     }
 
+    // Check if beach cache exists
+    final hasCache = prefs.getString('cached_greek_beaches') != null;
+    if (!hasCache) {
+      setState(() => _downloadStatus = 'Λήψη δεδομένων παραλιών...');
+      // Simulate progress while downloading
+      for (int i = 1; i <= 9; i++) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        if (mounted) setState(() => _downloadProgress = i / 10);
+      }
+      await BeachCache.getBeaches();
+      if (mounted) setState(() => _downloadProgress = 1.0);
+      await Future.delayed(const Duration(milliseconds: 300));
+    }
+
+    if (!mounted) return;
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const MainNavigation()),
       );
@@ -132,6 +150,28 @@ class _SplashScreenState extends State<SplashScreen>
                         letterSpacing: 2,
                       ),
                     ),
+                    if (_downloadProgress > 0) ...[
+                      const SizedBox(height: 32),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 48),
+                        child: Column(
+                          children: [
+                            Text(_downloadStatus,
+                              style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: LinearProgressIndicator(
+                                value: _downloadProgress,
+                                backgroundColor: Colors.white24,
+                                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF1E88E5)),
+                                minHeight: 6,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

@@ -1,6 +1,88 @@
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'greek_coast_data.dart';
+
+class BeachCache {
+  static const _keyBeaches = 'cached_greek_beaches';
+  static const _keyTimestamp = 'cached_beaches_timestamp';
+  static const _maxAgeDays = 30;
+
+  static List<Map<String, dynamic>>? _memCache;
+
+  static Future<List<Map<String, dynamic>>> getBeaches() async {
+    if (_memCache != null) return _memCache!;
+    final prefs = await SharedPreferences.getInstance();
+    final json = prefs.getString(_keyBeaches);
+    final ts = prefs.getInt(_keyTimestamp) ?? 0;
+    final age = DateTime.now().millisecondsSinceEpoch - ts;
+    final expired = age > _maxAgeDays * 86400 * 1000;
+    if (json != null && !expired) {
+      final list = (jsonDecode(json) as List).cast<Map<String, dynamic>>();
+      _memCache = list;
+      return list;
+    }
+    final fresh = await _downloadBeaches();
+    if (fresh.isNotEmpty) {
+      _memCache = fresh;
+      await prefs.setString(_keyBeaches, jsonEncode(fresh));
+      await prefs.setInt(_keyTimestamp, DateTime.now().millisecondsSinceEpoch);
+      return fresh;
+    }
+    // Fallback: hardcoded list
+    _memCache = GreekCoastData.beaches.map((b) => Map<String, dynamic>.from(b)).toList();
+    return _memCache!;
+  }
+
+  static Future<List<Map<String, dynamic>>> _downloadBeaches() async {
+    const query = '[out:json][timeout:60];'
+        'area["name"="Ελλάδα"]["admin_level"="2"]->.gr;'
+        '(node["natural"="beach"](area.gr);'
+        'way["natural"="beach"](area.gr););'
+        'out center 1000;';
+    final mirrors = [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.kumi.systems/api/interpreter',
+      'https://overpass.openstreetmap.ru/api/interpreter',
+    ];
+    for (final mirror in mirrors) {
+      try {
+        final uri = Uri.parse(mirror).replace(queryParameters: {'data': query});
+        final response = await http.get(uri, headers: {
+          'User-Agent': 'MetAIoSpot/1.0 (gr.webdevelopment.metaiospot)'
+        }).timeout(const Duration(seconds: 60));
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final elements = data['elements'] as List? ?? [];
+          final beaches = <Map<String, dynamic>>[];
+          for (final e in elements) {
+            final tags = e['tags'] as Map? ?? {};
+            final name = tags['name'] ?? tags['name:el'] ?? tags['name:en'];
+            if (name == null) continue;
+            final eLat = (e['lat'] ?? e['center']?['lat']) as num?;
+            final eLon = (e['lon'] ?? e['center']?['lon']) as num?;
+            if (eLat == null || eLon == null) continue;
+            final pref = GreekCoastData.findPrefectureByCoords(
+                eLat.toDouble(), eLon.toDouble());
+            if (pref == null) continue;
+            beaches.add({
+              'name': name,
+              'lat': eLat.toDouble(),
+              'lon': eLon.toDouble(),
+              'pref': pref,
+            });
+          }
+          if (beaches.isNotEmpty) return beaches;
+        }
+      } catch (_) { continue; }
+    }
+    return [];
+  }
+
+  static void invalidate() {
+    _memCache = null;
+  }
+}
 
 class BeachData {
   final String locationName;
@@ -343,8 +425,26 @@ class BeachService {
 
   static Future<List<Map<String, dynamic>>> findNearbyBeaches(
       double lat, double lon, {int radiusKm = 50, String prefecture = ''}) async {
-    // Prefecture-based: φέρνει παραλίες προσβάσιμες ΟΔΙΚΑ (όχι ferry)
+    // 1. Προσπάθεια με cached παραλίες (Overpass cache ή hardcoded)
     if (prefecture.isNotEmpty) {
+      try {
+        final cached = await BeachCache.getBeaches();
+        if (cached.isNotEmpty) {
+          final accessible = GreekCoastData.adjacency[prefecture] ?? [prefecture];
+          final filtered = cached.where((b) {
+            final pref = b['pref'] as String?;
+            return pref != null && accessible.contains(pref);
+          }).map((b) {
+            final dlat = (b['lat'] as double) - lat;
+            final dlon = (b['lon'] as double) - lon;
+            final distKm = 111.0 * (dlat * dlat + dlon * dlon) / 2;
+            return {...b, 'distKm': double.parse(distKm.toStringAsFixed(1))};
+          }).toList();
+          filtered.sort((a, b) => (a['distKm'] as double).compareTo(b['distKm'] as double));
+          if (filtered.isNotEmpty) return filtered.take(8).toList();
+        }
+      } catch (_) {}
+      // Fallback στη hardcoded λίστα
       final byPref = GreekCoastData.beachesNear(prefecture, lat, lon);
       if (byPref.isNotEmpty) return byPref.take(8).toList();
     }
