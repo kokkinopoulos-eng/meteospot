@@ -353,7 +353,17 @@ class _BeachScreenState extends State<BeachScreen> {
                             borderSide: BorderSide.none,
                           ),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          suffixIcon: _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, color: Colors.white54, size: 18),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {});
+                                  },
+                                )
+                              : null,
                         ),
+                        onChanged: (_) => setState(() {}),
                         onSubmitted: _searchBeach,
                       ),
                     ),
