@@ -82,16 +82,20 @@ class WeatherData {
 
   // Εικονίδιο καιρού
   String get weatherEmoji {
-      if (weatherCode == 0) return '☀️';
-      if (weatherCode <= 3) return '⛅';
-      if (weatherCode <= 48) return '🌫️';
-      if (weatherCode <= 57) return '🌦️';
-      if (weatherCode <= 67) return '🌧️';
-      if (weatherCode <= 77) return '❄️';
-      if (weatherCode <= 82) return '🌧️';
-      if (weatherCode <= 99) return '⛈️';
-      return '🌡️';
-    }
+    if (windSpeed > 60) return '🌪️';
+    if (windSpeed > 40) return '💨';
+    if (temperature > 38) return '🥵';
+    if (weatherCode == 0 && temperature > 30) return '🌞';
+    if (weatherCode == 0) return '☀️';
+    if (weatherCode <= 3) return '⛅';
+    if (weatherCode <= 48) return '🌫️';
+    if (weatherCode <= 57) return '🌦️';
+    if (weatherCode <= 67) return '🌧️';
+    if (weatherCode <= 77) return '❄️';
+    if (weatherCode <= 82) return '🌧️';
+    if (weatherCode <= 99) return '⛈️';
+    return '🌡️';
+  }
 
   // Κατεύθυνση ανέμου
   String get windDirectionText {

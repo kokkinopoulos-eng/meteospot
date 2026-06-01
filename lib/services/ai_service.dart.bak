@@ -264,6 +264,7 @@ class AIService {
     if (provider == AIProvider.claude) return await askClaude(apiKey, weatherContext, question);
     return await askChatGPT(apiKey, weatherContext, question);
   }
+
   String buildWeatherContext({
     required double temperature, required double feelsLike,
     required double humidity, required double windSpeed,
@@ -273,18 +274,16 @@ class AIService {
     required double latitude, required double longitude,
     String locationName = '',
   }) {
-    final loc = locationName.isNotEmpty
-        ? locationName
-        : '${latitude.toStringAsFixed(5)}, ${longitude.toStringAsFixed(5)}';
-    return '''
-📍 Τοποθεσία: $loc (${elevation.toInt()}m υψόμετρο)
-${temperature.toStringAsFixed(1)}°C (αίσθηση: ${feelsLike.toStringAsFixed(1)}°C)
-${humidity.toInt()}%
-${windSpeed.toStringAsFixed(1)} km/h από $windDirection
-${pressure.toStringAsFixed(0)} hPa
-${uvIndex.toStringAsFixed(1)}
-${(visibility / 1000).toStringAsFixed(1)} km
-$description
-''';
+    final loc = locationName.isNotEmpty ? locationName : '\, \';
+    return 
+        '📍 Τοποθεσία: \ (\m)\n'
+        '🌡️ Θερμοκρασία: \°C (Αίσθηση: \°C)\n'
+        '💧 Υγρασία: \%\n'
+        '🌬️ Άνεμος: \ km/h από \\n'
+        '🌡️ Πίεση: \ hPa\n'
+        '☀️ UV Index: \\n'
+        '👁️ Ορατότητα: \ km\n'
+        '⛅ Συνθήκες: \';
   }
 }
+
