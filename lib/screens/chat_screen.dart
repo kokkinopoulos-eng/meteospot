@@ -87,7 +87,8 @@ class _ChatScreenState extends State<ChatScreen> {
       String context = _weatherContext;
       if (_isBeachQuestion(text)) {
         final beaches = await BeachService.findNearbyBeaches(
-            widget.weatherData.latitude, widget.weatherData.longitude);
+            widget.weatherData.latitude, widget.weatherData.longitude,
+            prefecture: widget.weatherData.prefecture);
         if (beaches.isNotEmpty) {
           context += '\n\n[ΣΥΣΤΗΜΑ: Ο χρήστης είναι στο ${widget.weatherData.locationName}. Παρακάτω παραλίες από OpenStreetMap με απόσταση σε ευθεία γραμμή. ΠΡΟΣΟΧΗ: η ευθεία απόσταση μπορεί να περνά πάνω από θάλασσα. Πρότεινε ΜΟΝΟ παραλίες που είναι στην ίδια στεριά/περιοχή και προσεγγίζονται ΟΔΙΚΑ χωρίς πλοίο/ferry. Αγνόησε παραλίες σε άλλο νησί ή απέναντι ακτή:]\n';
           for (final b in beaches.take(15)) {

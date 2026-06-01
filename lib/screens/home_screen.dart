@@ -4,6 +4,7 @@ import 'settings_screen.dart' as settings_screen;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import '../services/greek_coast_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import '../services/weather_service.dart';
@@ -26,6 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final SensorService _sensorService = SensorService();
 
   WeatherData? _weatherData;
+  double? _plannedLat;
+  double? _plannedLon;
+  String? _plannedName;
   String? _aiInsight;
   bool _isLoading = false;
   String? _error;
@@ -55,14 +59,26 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final Position position = await _locationService.getCurrentLocation();
-      final weather = await _weatherService.getWeather(position.latitude, position.longitude);
+      double lat, lon;
+      if (_plannedLat != null && _plannedLon != null) {
+        lat = _plannedLat!;
+        lon = _plannedLon!;
+      } else {
+        final Position position = await _locationService.getCurrentLocation();
+        lat = position.latitude;
+        lon = position.longitude;
+      }
+      final weather = await _weatherService.getWeather(lat, lon);
       try {
-        final placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+        final placemarks = await placemarkFromCoordinates(lat, lon);
         if (placemarks.isNotEmpty) {
           final p = placemarks.first;
           final parts = [p.locality, p.administrativeArea].where((s) => s != null && s.isNotEmpty).toList();
           weather.locationName = parts.join(', ');
+          final pref = GreekCoastData.resolvePrefecture(p.subAdministrativeArea) ??
+              GreekCoastData.resolvePrefecture(p.administrativeArea) ??
+              GreekCoastData.findPrefectureByCoords(weather.latitude, weather.longitude);
+          if (pref != null) weather.prefecture = pref;
         }
       } catch (_) {}
 
@@ -89,6 +105,61 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
     }
+  }
+
+
+  Future<void> _selectPlannedLocation() async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A2744),
+        title: const Text('Σχεδιασμός εκδρομής', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'π.χ. Λευκαντί, Κάρυστος...',
+            hintStyle: TextStyle(color: Colors.white38),
+            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white38)),
+            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
+          ),
+          onSubmitted: (v) => Navigator.pop(ctx, v),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ακύρωση', style: TextStyle(color: Colors.white54))),
+          TextButton(onPressed: () => Navigator.pop(ctx, controller.text), child: const Text('OK', style: TextStyle(color: Colors.blue))),
+        ],
+      ),
+    );
+    if (result == null || result.trim().isEmpty) return;
+    try {
+      final locations = await locationFromAddress(result.trim() + ', Greece');
+      if (locations.isNotEmpty) {
+        setState(() {
+          _plannedLat = locations.first.latitude;
+          _plannedLon = locations.first.longitude;
+          _plannedName = result.trim();
+        });
+        _loadWeather();
+      } else {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Δεν βρέθηκε η τοποθεσία')));
+      }
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Σφάλμα αναζήτησης τοποθεσίας')));
+    }
+  }
+
+  void _clearPlannedLocation() {
+    setState(() {
+      _plannedLat = null;
+      _plannedLon = null;
+      _plannedName = null;
+    });
+    _loadWeather();
   }
 
   int _lon2tile(double lon, int zoom) {
@@ -253,6 +324,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             actions: [
               IconButton(
+                icon: Icon(_plannedLat != null ? Icons.location_off : Icons.add_location_alt_outlined, color: Colors.white),
+                tooltip: _plannedLat != null ? 'Επιστροφή στη θέση μου' : 'Σχεδιασμός εκδρομής',
+                onPressed: _plannedLat != null ? _clearPlannedLocation : _selectPlannedLocation,
+              ),
+              IconButton(
                 icon: const Icon(Icons.share, color: Colors.white),
                 onPressed: () {
                   if (_weatherData != null) {
@@ -331,6 +407,26 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (_plannedName != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.withValues(alpha: 0.5)),
+                ),
+                child: Row(children: [
+                  const Icon(Icons.explore, color: Colors.blue, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text('Σχεδιασμός: $_plannedName',
+                      style: const TextStyle(color: Colors.white, fontSize: 13))),
+                  GestureDetector(
+                    onTap: _clearPlannedLocation,
+                    child: const Icon(Icons.close, color: Colors.white54, size: 18),
+                  ),
+                ]),
+              ),
             _buildMainWeatherCard(),
             const SizedBox(height: 16),
             _buildMapCard(),

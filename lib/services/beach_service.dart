@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'greek_coast_data.dart';
 
 class BeachData {
   final String locationName;
@@ -341,7 +342,12 @@ class BeachService {
   ];
 
   static Future<List<Map<String, dynamic>>> findNearbyBeaches(
-      double lat, double lon, {int radiusKm = 50}) async {
+      double lat, double lon, {int radiusKm = 50, String prefecture = ''}) async {
+    // Prefecture-based: φέρνει παραλίες προσβάσιμες ΟΔΙΚΑ (όχι ferry)
+    if (prefecture.isNotEmpty) {
+      final byPref = GreekCoastData.beachesNear(prefecture, lat, lon);
+      if (byPref.isNotEmpty) return byPref.take(8).toList();
+    }
     final query = '[out:json][timeout:25];'
         '(node["natural"="beach"](around:\,\,\);'
         'way["natural"="beach"](around:\,\,\););'
