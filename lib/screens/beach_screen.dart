@@ -322,7 +322,7 @@ class _BeachScreenState extends State<BeachScreen> {
                       ...beaches.take(8).map((b) => ListTile(
                         leading: const Text('🏖️', style: TextStyle(fontSize: 20)),
                         title: Text(b['name'] as String, style: const TextStyle(color: Colors.white)),
-                        trailing: Text('${b["distKm"]} km', style: const TextStyle(color: Colors.white54)),
+                        trailing: Text('' + b["distKm"].toString() + ' km', style: const TextStyle(color: Colors.white54)),
                         onTap: () { Navigator.pop(context); _searchController.text = b['name'] as String; _searchBeach(b['name'] as String); },
                       )),
                       const SizedBox(height: 16),
@@ -462,7 +462,7 @@ class _BeachScreenState extends State<BeachScreen> {
                             leading: const Text('🏖️', style: TextStyle(fontSize: 22)),
                             title: Text(b['name'] as String, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             subtitle: Text(b['pref'] as String, style: const TextStyle(color: Colors.white54, fontSize: 12)),
-                            trailing: Text('\${b["distKm"]} km', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                            trailing: Text('' + b["distKm"].toString() + ' km', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
                             onTap: () { Navigator.pop(context); _searchController.text = b['name'] as String; _searchBeach(b['name'] as String); },
                           )),
                           const SizedBox(height: 32),

@@ -26,7 +26,6 @@ class _ChatScreenState extends State<ChatScreen> {
   List<Map<String, dynamic>> _lastBeaches = [];
 
   final List<String> _quickQuestions = [
-    'Που να πάω για μπάνιο;',
     'Θα βρέξει σήμερα;',
     'Να βγω για περπάτημα;',
     'Καλό για drone;',
