@@ -4,7 +4,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/ai_service.dart';
-import '../services/beach_service.dart';
 import '../models/weather_data.dart';
 import 'beach_screen.dart';
 
@@ -69,11 +68,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  bool _isBeachQuestion(String text) {
-    final lower = text.toLowerCase();
-    return lower.contains('μπάνιο') || lower.contains('παραλία') ||
-        lower.contains('κολύμπι') || lower.contains('θάλασσα');
-  }
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
@@ -86,18 +80,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
     try {
       String context = _weatherContext;
-      if (_isBeachQuestion(text)) {
-        final beaches = await BeachService.findNearbyBeaches(
-            widget.weatherData.latitude, widget.weatherData.longitude,
-            prefecture: widget.weatherData.prefecture);
-        if (beaches.isNotEmpty) {
-          context += '\n\n[ΣΥΣΤΗΜΑ: Ο χρήστης είναι στο ${widget.weatherData.locationName}. Παρακάτω παραλίες από OpenStreetMap με απόσταση σε ευθεία γραμμή. ΠΡΟΣΟΧΗ: η ευθεία απόσταση μπορεί να περνά πάνω από θάλασσα. Πρότεινε ΜΟΝΟ παραλίες που είναι στην ίδια στεριά/περιοχή και προσεγγίζονται ΟΔΙΚΑ χωρίς πλοίο/ferry. Αγνόησε παραλίες σε άλλο νησί ή απέναντι ακτή:]\n';
-          for (final b in beaches.take(15)) {
-            context += '- ${b["name"]} (${b["distKm"]}km euthia)\n';
-          }
-          setState(() => _lastBeaches = beaches.take(5).toList());
-        }
-      }
       final response = await _aiService.ask(context, text);
       setState(() {
         _messages.add({'role': 'assistant', 'content': response, 'type': 'text'});
