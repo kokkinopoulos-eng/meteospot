@@ -428,6 +428,51 @@ class _BeachScreenState extends State<BeachScreen> {
                     ),
                   ],
                 ),
+          if (widget.weatherData != null && !_isSkiMode && _beachData == null && !_isLoading)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.beach_access, color: Colors.white),
+                label: const Text('Που να πάω για μπάνιο;', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0077B6),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                onPressed: () {
+                  final w = widget.weatherData!;
+                  final pref = w.prefecture;
+                  if (pref.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Δεν βρέθηκε νομός'))); return; }
+                  final beaches = GreekCoastData.beachesNear(pref, w.latitude, w.longitude);
+                  if (beaches.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Δεν βρέθηκαν παραλίες'))); return; }
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: const Color(0xFF1A2744),
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                    builder: (_) => DraggableScrollableSheet(
+                      expand: false,
+                      initialChildSize: 0.5,
+                      builder: (_, ctrl) => ListView(
+                        controller: ctrl,
+                        children: [
+                          const Padding(padding: EdgeInsets.all(16), child: Text('Που να πάω για μπάνιο;', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
+                          ...beaches.take(10).map((b) => ListTile(
+                            leading: const Text('🏖️', style: TextStyle(fontSize: 22)),
+                            title: Text(b['name'] as String, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                            subtitle: Text(b['pref'] as String, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                            trailing: Text('\${b["distKm"]} km', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                            onTap: () { Navigator.pop(context); _searchController.text = b['name'] as String; _searchBeach(b['name'] as String); },
+                          )),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
               ],
             ),
           ),
