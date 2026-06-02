@@ -31,7 +31,7 @@ class OnboardingScreen extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(),
-              const Text('🌤️', style: TextStyle(fontSize: 72)),
+              ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.asset('assets/app_icon.png', width: 80, height: 80)),
               const SizedBox(height: 24),
               RichText(
                 text: const TextSpan(
