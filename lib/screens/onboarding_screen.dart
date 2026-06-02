@@ -33,7 +33,16 @@ class OnboardingScreen extends StatelessWidget {
               const Spacer(),
               const Text('🌤️', style: TextStyle(fontSize: 72)),
               const SizedBox(height: 24),
-              const Text('MetAIoSpot', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+              RichText(
+                text: const TextSpan(
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1),
+                  children: [
+                    TextSpan(text: 'Met'),
+                    TextSpan(text: 'AI', style: TextStyle(color: Color(0xFFFFD700), fontSize: 36, fontWeight: FontWeight.w900)),
+                    TextSpan(text: 'o Spot'),
+                  ],
+                ),
+              ),
               const SizedBox(height: 8),
               const Text('Ο AI μετεωρολόγος σου', style: TextStyle(color: Colors.white60, fontSize: 16)),
               const SizedBox(height: 40),

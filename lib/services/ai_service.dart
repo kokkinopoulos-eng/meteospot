@@ -273,18 +273,21 @@ class AIService {
     required double latitude, required double longitude,
     String locationName = '',
   }) {
-    final loc = locationName.isNotEmpty
-        ? locationName
-        : '${latitude.toStringAsFixed(5)}, ${longitude.toStringAsFixed(5)}';
+    final now = DateTime.now();
+    final months = ['', 'Ιανουάριος', 'Φεβρουάριος', 'Μάρτιος', 'Απρίλιος', 'Μάιος', 'Ιούνιος', 'Ιούλιος', 'Αύγουστος', 'Σεπτέμβριος', 'Οκτώβριος', 'Νοέμβριος', 'Δεκέμβριος'];
+    final days = ['Κυριακή', 'Δευτέρα', 'Τρίτη', 'Τετάρτη', 'Πέμπτη', 'Παρασκευή', 'Σάββατο'];
+    final dateStr = '${days[now.weekday % 7]} ${now.day} ${months[now.month]} ${now.year}';
+    final loc = locationName.isNotEmpty ? locationName : '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
     return '''
-📍 Τοποθεσία: $loc (${elevation.toInt()}m υψόμετρο)
-${temperature.toStringAsFixed(1)}°C (αίσθηση: ${feelsLike.toStringAsFixed(1)}°C)
-${humidity.toInt()}%
-${windSpeed.toStringAsFixed(1)} km/h από $windDirection
-${pressure.toStringAsFixed(0)} hPa
-${uvIndex.toStringAsFixed(1)}
-${(visibility / 1000).toStringAsFixed(1)} km
-$description
+Σημερινή ημερομηνία: $dateStr
+Τοποθεσία: $loc (${elevation.toInt()}m υψόμετρο)
+Θερμοκρασία: ${temperature.toStringAsFixed(1)}°C (Αίσθηση: ${feelsLike.toStringAsFixed(1)}°C)
+Υγρασία: ${humidity.toInt()}%
+Άνεμος: ${windSpeed.toStringAsFixed(1)} km/h από $windDirection
+Πίεση: ${pressure.toStringAsFixed(0)} hPa
+UV Index: ${uvIndex.toStringAsFixed(1)}
+Ορατότητα: ${(visibility / 1000).toStringAsFixed(1)} km
+Συνθήκες: $description
 ''';
   }
 }

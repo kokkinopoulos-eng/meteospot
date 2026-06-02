@@ -65,6 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
       elevation: w.elevation,
       latitude: w.latitude,
       longitude: w.longitude,
+      locationName: w.locationName,
     );
   }
 
@@ -190,6 +191,11 @@ class _ChatScreenState extends State<ChatScreen> {
               SharePlus.instance.share(ShareParams(text: 'MetAIoSpot AI:\n$last'));
             },
             tooltip: 'Κοινοποίηση',
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.white),
+            tooltip: 'Καθαρισμός',
+            onPressed: () => setState(() { _messages.clear(); _lastBeaches = []; }),
           ),
           if (_hasApiKey)
             IconButton(

@@ -29,7 +29,7 @@ class _MainNavigationState extends State<MainNavigation> {
         children: [
           HomeScreen(onWeatherLoaded: _onWeatherLoaded),
           const SunMoonScreen(),
-          const BeachScreen(),
+          BeachScreen(weatherData: _weatherData),
           _weatherData != null
               ? ChatScreen(weatherData: _weatherData!)
               : const _NoWeatherPlaceholder(),

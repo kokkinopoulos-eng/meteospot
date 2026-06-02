@@ -4,6 +4,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../services/beach_service.dart';
+import '../models/weather_data.dart';
+import '../services/greek_coast_data.dart';
 import '../services/ai_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -39,7 +41,8 @@ class BeachScreen extends StatefulWidget {
   final String? initialName;
   final double? initialLat;
   final double? initialLon;
-  const BeachScreen({super.key, this.initialName, this.initialLat, this.initialLon});
+  final WeatherData? weatherData;
+  const BeachScreen({super.key, this.initialName, this.initialLat, this.initialLon, this.weatherData});
 
   @override
   State<BeachScreen> createState() => _BeachScreenState();
@@ -298,8 +301,37 @@ class _BeachScreenState extends State<BeachScreen> {
               onPressed: _clearResults,
             ),
           ],
+          if (widget.weatherData != null)
+            IconButton(
+              icon: const Icon(Icons.near_me, color: Colors.white),
+              tooltip: 'Κοντινές παραλίες',
+              onPressed: () {
+                final w = widget.weatherData!;
+                final pref = w.prefecture;
+                if (pref.isEmpty) return;
+                final beaches = GreekCoastData.beachesNear(pref, w.latitude, w.longitude);
+                if (beaches.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Δεν βρέθηκαν κοντινές παραλίες'))); return; }
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: const Color(0xFF1A2744),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                  builder: (_) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Padding(padding: EdgeInsets.all(16), child: Text('Κοντινές παραλίες', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold))),
+                      ...beaches.take(8).map((b) => ListTile(
+                        leading: const Text('🏖️', style: TextStyle(fontSize: 20)),
+                        title: Text(b['name'] as String, style: const TextStyle(color: Colors.white)),
+                        trailing: Text('${b["distKm"]} km', style: const TextStyle(color: Colors.white54)),
+                        onTap: () { Navigator.pop(context); _searchController.text = b['name'] as String; _searchBeach(b['name'] as String); },
+                      )),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                );
+              },
+            ),
         ],
-        elevation: 0,
       ),
       body: Column(
         children: [
