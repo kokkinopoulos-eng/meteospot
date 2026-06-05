@@ -45,6 +45,8 @@ class OnboardingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text('Ο AI μετεωρολόγος σου', style: TextStyle(color: Colors.white60, fontSize: 16)),
+              const SizedBox(height: 4),
+              const Text('by Kokkinopoulos Babis', style: TextStyle(color: Colors.white38, fontSize: 12, fontStyle: FontStyle.italic)),
               const SizedBox(height: 40),
               Container(
                 padding: const EdgeInsets.all(20),
