@@ -433,6 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ]),
               ),
             GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onHorizontalDragEnd: (details) {
                 if (details.primaryVelocity != null) {
                   if (details.primaryVelocity! < -300) {

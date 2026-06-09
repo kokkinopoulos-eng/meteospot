@@ -95,6 +95,7 @@ class BeachData {
   final double windSpeed;
   final double windDirection;
   final DateTime time;
+  final double airTemperature;
 
   BeachData({
     required this.locationName,
@@ -107,6 +108,7 @@ class BeachData {
     required this.windSpeed,
     required this.windDirection,
     required this.time,
+    this.airTemperature = 0.0,
   });
 
   String get waveCondition {
@@ -201,7 +203,7 @@ class BeachService {
       );
       final weatherUri = Uri.parse(
         'https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon'
-        '&hourly=wind_speed_10m,wind_direction_10m'
+        '&hourly=wind_speed_10m,wind_direction_10m,temperature_2m'
         '&timezone=auto&forecast_days=1'
       );
 
@@ -235,6 +237,7 @@ class BeachService {
           seaTemperature: getVal(hourly['sea_surface_temperature'], hour, 20.0),
           windSpeed: getVal(weatherHourly['wind_speed_10m'], hour, 0.0),
           windDirection: getVal(weatherHourly['wind_direction_10m'], hour, 0.0),
+          airTemperature: getVal(weatherHourly['temperature_2m'], hour, 0.0),
           time: DateTime.now(),
         );
       }
