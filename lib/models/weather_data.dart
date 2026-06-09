@@ -83,13 +83,18 @@ class WeatherData {
   }
 
   // Εικονίδιο καιρού
+  bool get isNight {
+    final hour = DateTime.now().hour;
+    return hour >= 21 || hour < 6;
+  }
+
   String get weatherEmoji {
     if (windSpeed > 60) return '🌪️';
     if (windSpeed > 40) return '💨';
     if (temperature > 38) return '🥵';
-    if (weatherCode == 0 && temperature > 30) return '🌞';
-    if (weatherCode == 0) return '☀️';
-    if (weatherCode <= 3) return '⛅';
+    if (weatherCode == 0 && temperature > 30) return isNight ? '🌙' : '🌞';
+    if (weatherCode == 0) return isNight ? '🌙' : '☀️';
+    if (weatherCode <= 3) return isNight ? '🌙' : '⛅';
     if (weatherCode <= 48) return '🌫️';
     if (weatherCode <= 57) return '🌦️';
     if (weatherCode <= 67) return '🌧️';

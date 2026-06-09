@@ -1,7 +1,7 @@
 name: meteospot
 description: Hyperlocal AI Weather App
 publish_to: 'none'
-version: 1.0.2+4
+version: 1.0.4+6
 
 environment:
   sdk: '>=3.12.0 <4.0.0'
@@ -45,6 +45,7 @@ dev_dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.14.1
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.1
 
 flutter:
   uses-material-design: true
@@ -61,3 +62,4 @@ flutter_launcher_icons:
   image_path: "assets/app_icon.png"
   adaptive_icon_background: "#1565C0"
   adaptive_icon_foreground: "assets/app_icon_foreground.png"
+  remove_alpha_ios: true

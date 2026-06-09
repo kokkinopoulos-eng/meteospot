@@ -38,6 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int _logoTapCount = 0;
   DateTime? _lastLogoTap;
   bool _adsDisabled = true;
+  List<Map<String, dynamic>> _hourlyForecast = [];
+  bool _showForecast = false;
 
   @override
   void initState() {
@@ -99,6 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
         _aiInsight = insight;
         _isLoading = false;
       });
+      // Load hourly forecast
+      final forecast = await _weatherService.getHourlyForecast(lat, lon);
+      if (mounted) setState(() => _hourlyForecast = forecast);
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -427,7 +432,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ]),
               ),
-            _buildMainWeatherCard(),
+            GestureDetector(
+              onHorizontalDragEnd: (details) {
+                if (details.primaryVelocity != null) {
+                  if (details.primaryVelocity! < -300) {
+                    setState(() => _showForecast = true);
+                  } else if (details.primaryVelocity! > 300) {
+                    setState(() => _showForecast = false);
+                  }
+                }
+              },
+              child: _showForecast ? _buildForecastCard() : _buildMainWeatherCard(),
+            ),
             const SizedBox(height: 16),
             _buildMapCard(),
             const SizedBox(height: 16),
@@ -553,6 +569,81 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(w.weatherEmoji, style: const TextStyle(fontSize: 64)),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+
+  Widget _buildForecastCard() {
+    final w = _weatherData!;
+    final now = DateTime.now().hour;
+    final upcoming = _hourlyForecast.where((h) {
+      final t = h['time'] as String;
+      final hour = int.tryParse(t.split('T').last.split(':').first) ?? 0;
+      return hour >= now;
+    }).take(8).toList();
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            const Text('Πρόβλεψη 24ω', style: TextStyle(color: Colors.white70, fontSize: 13)),
+            GestureDetector(
+              onTap: () => setState(() => _showForecast = false),
+              child: const Icon(Icons.close, color: Colors.white54, size: 18),
+            ),
+          ]),
+          const SizedBox(height: 12),
+          if (upcoming.isEmpty)
+            const Center(child: Text('Δεν υπάρχουν δεδομένα', style: TextStyle(color: Colors.white54)))
+          else
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: upcoming.map((h) {
+                  final time = (h['time'] as String).split('T').last.substring(0, 5);
+                  final temp = (h['temperature'] as num).toStringAsFixed(0);
+                  final prob = h['precipitation_probability'] as num;
+                  final code = (h['weather_code'] as num).toInt();
+                  String emoji;
+                  if (code == 0) emoji = w.isNight ? '🌙' : '☀️';
+                  else if (code <= 3) emoji = '⛅';
+                  else if (code <= 48) emoji = '🌫️';
+                  else if (code <= 67) emoji = '🌧️';
+                  else if (code <= 77) emoji = '❄️';
+                  else emoji = '⛈️';
+                  return Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(children: [
+                      Text(time, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                      const SizedBox(height: 4),
+                      Text(emoji, style: const TextStyle(fontSize: 22)),
+                      const SizedBox(height: 4),
+                      Text('$temp°', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 2),
+                      Text('$prob%💧', style: const TextStyle(color: Colors.white60, fontSize: 10)),
+                    ]),
+                  );
+                }).toList(),
+              ),
+            ),
         ],
       ),
     );

@@ -144,6 +144,30 @@ class _BeachScreenState extends State<BeachScreen> {
     await _loadData(geo['name'], geo['latitude'], geo['longitude']);
   }
 
+
+  // Bypass geocoding + sea check for beaches from GreekCoastData
+  Future<void> _searchBeachByCoords(String name, double lat, double lon) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _beachData = null;
+      _aiAnalysis = null;
+      _showMap = false;
+      _isFavorite = false;
+    });
+    final data = await BeachService.getBeachData(name, lat, lon);
+    setState(() {
+      _isLoading = false;
+      if (data != null) {
+        _beachData = data;
+        _showMap = false;
+        _isFavorite = _favorites.any((f) => f.name == name);
+      } else {
+        _errorMessage = 'Δεν βρέθηκαν δεδομένα για αυτή την παραλία.';
+      }
+    });
+  }
+
   Future<void> _loadData(String name, double lat, double lon) async {
     if (!lat.isFinite || !lon.isFinite) return;
     setState(() { _isLoading = true; _errorMessage = null; _isFavorite = false; });
@@ -323,7 +347,7 @@ class _BeachScreenState extends State<BeachScreen> {
                         leading: const Text('🏖️', style: TextStyle(fontSize: 20)),
                         title: Text(b['name'] as String, style: const TextStyle(color: Colors.white)),
                         trailing: Text('' + b["distKm"].toString() + ' km', style: const TextStyle(color: Colors.white54)),
-                        onTap: () { Navigator.pop(context); _searchController.text = b['name'] as String; _searchBeach(b['name'] as String); },
+                        onTap: () { Navigator.pop(context); _searchController.text = b['name'] as String; _searchBeachByCoords(b['name'] as String, b['lat'] as double, b['lon'] as double); },
                       )),
                       const SizedBox(height: 16),
                     ],
@@ -463,7 +487,7 @@ class _BeachScreenState extends State<BeachScreen> {
                             title: Text(b['name'] as String, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                             subtitle: Text(b['pref'] as String, style: const TextStyle(color: Colors.white54, fontSize: 12)),
                             trailing: Text('' + b["distKm"].toString() + ' km', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
-                            onTap: () { Navigator.pop(context); _searchController.text = b['name'] as String; _searchBeach(b['name'] as String); },
+                            onTap: () { Navigator.pop(context); _searchController.text = b['name'] as String; _searchBeachByCoords(b['name'] as String, b['lat'] as double, b['lon'] as double); },
                           )),
                           const SizedBox(height: 32),
                         ],
