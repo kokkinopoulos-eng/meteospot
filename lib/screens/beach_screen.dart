@@ -706,12 +706,13 @@ class _BeachScreenState extends State<BeachScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: _isSkiMode ? [
                   _infoItem('\u2744\ufe0f', '\u03a7\u03b9\u03cc\u03bd\u03b9', '${d.waveHeight.toStringAsFixed(0)}cm'),
-                  _infoItem('\ud83c\udf21\ufe0f', '\u0398\u03b5\u03c1\u03bc.', '${d.seaTemperature.toStringAsFixed(1)}\u00b0C'),
+                  _infoItem('🌡️', 'Αέρας', '${d.airTemperature.toStringAsFixed(1)}°C'),
                   _infoItem('\ud83d\udca8', '\u0386\u03bd\u03b5\u03bc\u03bf\u03c2', '${d.windSpeed.toStringAsFixed(0)}km/h'),
                   _infoItem('\ud83d\udc41\ufe0f', '\u039f\u03c1\u03b1\u03c4.', '${d.wavePeriod.toStringAsFixed(0)}km'),
                 ] : [
                   _infoItem('\ud83c\udf0a', '\u039a\u03cd\u03bc\u03b1', '${d.waveHeight.toStringAsFixed(1)}m'),
                   _infoItem('\ud83c\udf21\ufe0f', '\u039d\u03b5\u03c1\u03cc', '${d.seaTemperature.toStringAsFixed(1)}\u00b0C'),
+                  _infoItem('🌡️', 'Αέρας', '${d.airTemperature.toStringAsFixed(1)}°C'),
                   _infoItem('\ud83d\udca8', '\u0386\u03bd\u03b5\u03bc\u03bf\u03c2', '${d.windSpeed.toStringAsFixed(0)}km/h'),
                   _infoItem('\u23f1', '\u03a0\u03b5\u03c1\u03af\u03bf\u03b4\u03bf\u03c2', '${d.wavePeriod.toStringAsFixed(0)}s'),
                 ],
