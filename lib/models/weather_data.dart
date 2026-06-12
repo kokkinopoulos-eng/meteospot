@@ -69,15 +69,14 @@ class WeatherData {
 
   static String _getWeatherDescription(int code) {
     if (code == 0) return 'Αίθριος καιρός';
-    if (code <= 3) return 'Συννεφιά';
-    if (code <= 9) return 'Ομίχλη';
-    if (code <= 19) return 'Ψιλόβροχο';
-    if (code <= 29) return 'Βροχή';
-    if (code <= 39) return 'Χιόνι';
-    if (code <= 49) return 'Παγοκρύσταλλοι';
-    if (code <= 59) return 'Ψιλόβροχο';
-    if (code <= 69) return 'Βροχή';
-    if (code <= 79) return 'Χιόνι';
+    if (code <= 2) return 'Λίγα σύννεφα';
+    if (code == 3) return 'Συννεφιά';
+    if (code <= 48) return 'Ομίχλη';
+    if (code <= 57) return 'Ψιλόβροχο';
+    if (code <= 67) return 'Βροχή';
+    if (code <= 77) return 'Χιόνι';
+    if (code <= 82) return 'Νεροπονή';
+    if (code <= 86) return 'Χιονόπτωση';
     if (code <= 99) return 'Καταιγίδα';
     return 'Άγνωστος καιρός';
   }
