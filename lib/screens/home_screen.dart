@@ -577,7 +577,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Widget _buildForecastCard() {
-    final w = _weatherData!;
     final now = DateTime.now().hour;
     final upcoming = _hourlyForecast.where((h) {
       final t = h['time'] as String;
@@ -618,9 +617,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   final temp = (h['temperature'] as num).toStringAsFixed(0);
                   final prob = h['precipitation_probability'] as num;
                   final code = (h['weather_code'] as num).toInt();
+                  final slotHour = int.tryParse(time.split(':').first) ?? 0;
+                  final slotIsNight = slotHour >= 21 || slotHour < 6;
                   String emoji;
-                  if (code == 0) emoji = w.isNight ? '🌙' : '☀️';
-                  else if (code <= 3) emoji = '⛅';
+                  if (code == 0) emoji = slotIsNight ? '🌙' : '☀️';
+                  else if (code <= 3) emoji = slotIsNight ? '🌜' : '⛅';
                   else if (code <= 48) emoji = '🌫️';
                   else if (code <= 67) emoji = '🌧️';
                   else if (code <= 77) emoji = '❄️';
